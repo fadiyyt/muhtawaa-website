@@ -7,64 +7,200 @@
     <meta name="description" content="منصة محتوى - أفضل موقع للمحتوى العربي الهادف والمفيد مع تقنيات حديثة للبحث والاستكشاف">
     <meta name="keywords" content="محتوى, مقالات, تعليم, ثقافة, عربي, ذكي, تفاعلي">
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="محتوى - منصة المحتوى العربي الذكية">
-    <meta property="og:description" content="اكتشف آلاف المقالات المفيدة في جميع المجالات مع تجربة تصفح ذكية وتفاعلية">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://muhtawaa.com">
-    <meta property="og:image" content="https://muhtawaa.com/og-image.jpg">
-    <meta property="og:locale" content="ar_SA">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="محتوى - منصة المحتوى العربي الذكية">
-    <meta name="twitter:description" content="اكتشف آلاف المقالات المفيدة في جميع المجالات">
-    <meta name="twitter:image" content="https://muhtawaa.com/twitter-card.jpg">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="محتوى">
-    
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts - Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="styles-enhanced.css">
     
-    <!-- Google Fonts - Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "محتوى",
-      "alternateName": "Muhtawaa",
-      "url": "https://muhtawaa.com",
-      "description": "منصة محتوى عربية تقدم مقالات ومواضيع متنوعة وهادفة",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://muhtawaa.com/?search={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
-      "sameAs": [
-        "https://twitter.com/muhtawaa",
-        "https://www.facebook.com/muhtawaa"
-      ]
-    }
-    </script>
+    <style>
+        /* إضافة أنماط سريعة لحل مشاكل العرض */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-highlight {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .feature-highlight:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ed8936, #dd7324);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 4px 20px rgba(237, 137, 54, 0.3);
+            text-transform: none;
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(45deg, #dd7324, #c05621);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(237, 137, 54, 0.4);
+        }
+
+        /* تحسين قسم المقالات */
+        .articles {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .articles-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .articles-header h2 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* تحسين شبكة المقالات */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* مؤشر التحميل محسن */
+        .articles-loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* تحسين استجابة للموبايل */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 0 60px;
+            }
+
+            .hero-content h2 {
+                font-size: 2.2rem;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+
+            .hero-features {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .feature-highlight {
+                min-width: auto;
+                width: 90%;
+                max-width: 300px;
+            }
+
+            .cta-button {
+                font-size: 1.1rem;
+                padding: 15px 30px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>جاري تحميل محتوى...</h3>
+            <p>يرجى الانتظار قليلاً</p>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
@@ -114,13 +250,6 @@
                 </button>
             </div>
         </div>
-        
-        <!-- Background Animation -->
-        <div class="hero-bg-animation">
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
-        </div>
     </section>
 
     <!-- About Section -->
@@ -159,22 +288,22 @@
                 <p class="section-subtitle">آلاف المقالات المفيدة في انتظارك مع أدوات بحث وفلترة متطورة</p>
             </div>
             
-            <!-- سيتم إدراج عناصر التحكم هنا ديناميكياً -->
-            
-            <!-- Articles Grid -->
-            <div class="articles-grid" role="main" aria-live="polite">
-                <!-- سيتم تحميل المقالات هنا ديناميكياً من ملف JSON -->
-                <div class="articles-loading">
-                    <div class="spinner"></div>
-                    <p>جاري تحميل المقالات الرائعة...</p>
+            <!-- Articles Grid Container -->
+            <div id="articlesContainer">
+                <div class="articles-grid" role="main" aria-live="polite">
+                    <div class="articles-loading">
+                        <div class="spinner"></div>
+                        <h3>جاري تحميل المقالات الرائعة...</h3>
+                        <p>يرجى الانتظار بضع ثوان</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Load More Button Container -->
-            <div class="load-more-container">
-                <button class="load-more-btn" style="display: none;" aria-label="عرض مقالات إضافية">
-                    عرض المزيد من المقالات
-                </button>
+                <!-- Load More Button Container -->
+                <div class="load-more-container">
+                    <button class="load-more-btn" style="display: none;" aria-label="عرض مقالات إضافية">
+                        عرض المزيد من المقالات
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -320,19 +449,36 @@
     <!-- JavaScript Files -->
     <script src="script.js"></script>
     
-    <!-- Service Worker Registration -->
+    <!-- تأخير تحميل Service Worker لتجنب مشاكل التحميل الأولى -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
+        // إخفاء شاشة التحميل عند اكتمال التحميل
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    loadingScreen.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+        });
+
+        // تأخير تسجيل Service Worker
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(function(registration) {
+                            console.log('SW registered: ', registration);
+                        })
+                        .catch(function(registrationError) {
+                            console.log('SW registration failed: ', registrationError);
+                        });
+                }
+            }, 3000); // تأخير 3 ثوان لضمان تحميل الصفحة كاملاً
+        });
 
         // Check for online/offline status
         window.addEventListener('online', function() {
@@ -342,20 +488,6 @@
         window.addEventListener('offline', function() {
             document.getElementById('offlineMessage').style.display = 'flex';
         });
-
-        // Performance monitoring
-        window.addEventListener('load', function() {
-            if ('performance' in window) {
-                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-                console.log('Page loaded in', loadTime, 'milliseconds');
-            }
-        });
-    </script>
-
-    <!-- Analytics (placeholder) -->
-    <script>
-        // Google Analytics or other analytics code would go here
-        console.log('📊 Analytics initialized');
     </script>
 </body>
 </html>
