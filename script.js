@@ -341,7 +341,7 @@ function createSearchAndFilterControls() {
     // إدراج عناصر التحكم قبل شبكة المقالات
     const articlesGrid = articlesSection.querySelector('.articles-grid');
     if (articlesGrid) {
-        articlesSection.insertBefore(controlsContainer, articlesGrid);
+        articlesGrid.parentNode.insertBefore(controlsContainer, articlesGrid);
     } else {
         console.error('شبكة المقالات غير موجودة');
     }
