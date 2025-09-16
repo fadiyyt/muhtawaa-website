@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // Get form data
-            const formData = new FormData(contactForm);
             const name = contactForm.querySelector('input[placeholder="الاسم"]').value;
             const email = contactForm.querySelector('input[placeholder="البريد الإلكتروني"]').value;
             const message = contactForm.querySelector('textarea').value;
@@ -90,21 +89,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Simulate form submission
-            const submitButton = contactForm.querySelector('button');
-            const originalText = submitButton.textContent;
+            // Create WhatsApp message
+            const whatsappMessage = `السلام عليكم
+الاسم: ${name}
+البريد الإلكتروني: ${email}
+الرسالة: ${message}`;
             
-            submitButton.textContent = 'جاري الإرسال...';
-            submitButton.disabled = true;
+            const whatsappURL = `https://wa.me/966532821336?text=${encodeURIComponent(whatsappMessage)}`;
             
-            setTimeout(() => {
-                alert('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
-                contactForm.reset();
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-            }, 1500);
+            // Show confirmation and redirect
+            if (confirm('سيتم تحويلك إلى واتساب لإرسال الرسالة. هل تريد المتابعة؟')) {
+                window.open(whatsappURL, '_blank');
+                
+                // Reset form after a short delay
+                setTimeout(() => {
+                    contactForm.reset();
+                    alert('شكراً لتواصلك معنا! تم فتح واتساب لإرسال رسالتك.');
+                }, 1000);
+            }
         });
     }
+
+    // Add click animation to contact buttons
+    document.querySelectorAll('.contact-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
 });
 
 // Email validation function
