@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الصفحة غير موجودة - محتوى</title>
     <meta name="description" content="عذراً، الصفحة التي تبحث عنها غير موجودة">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="robots" content="noindex, nofollow">
     
     <style>
         * {
@@ -17,7 +15,7 @@
         }
 
         body {
-            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
@@ -26,374 +24,82 @@
             justify-content: center;
             text-align: center;
             direction: rtl;
-            position: relative;
-            overflow: hidden;
+            padding: 20px;
         }
 
         .error-container {
-            max-width: 600px;
-            padding: 3rem 2rem;
+            max-width: 500px;
+            padding: 2rem;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 10;
-            animation: slideInUp 0.8s ease-out;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .error-code {
-            font-size: 8rem;
+            font-size: 6rem;
             font-weight: 700;
             margin-bottom: 1rem;
             background: linear-gradient(45deg, #ffd700, #ffed4e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: pulse 2s infinite;
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
         }
 
         .error-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 1rem;
             font-weight: 700;
         }
 
         .error-message {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 2rem;
             opacity: 0.9;
         }
 
-        .error-suggestions {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .error-suggestions h3 {
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            color: #ffd700;
-        }
-
-        .suggestions-list {
-            list-style: none;
-            text-align: right;
-            margin-bottom: 1.5rem;
-        }
-
-        .suggestions-list li {
-            margin-bottom: 1rem;
-            padding-right: 2rem;
-            position: relative;
-            opacity: 0;
-            animation: fadeInList 0.5s ease-out forwards;
-        }
-
-        .suggestions-list li:nth-child(1) { animation-delay: 0.2s; }
-        .suggestions-list li:nth-child(2) { animation-delay: 0.4s; }
-        .suggestions-list li:nth-child(3) { animation-delay: 0.6s; }
-        .suggestions-list li:nth-child(4) { animation-delay: 0.8s; }
-
-        @keyframes fadeInList {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .suggestions-list li::before {
-            content: '✨';
-            position: absolute;
-            right: 0;
-            color: #ffd700;
-            font-size: 1.1rem;
-            animation: twinkle 2s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.2); }
-        }
-
         .action-buttons {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 2rem;
         }
 
         .btn {
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: 2px solid white;
             background: transparent;
             color: white;
-            border-radius: 30px;
+            border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
-            font-size: 1.1rem;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             cursor: pointer;
             font-family: inherit;
-            position: relative;
-            overflow: hidden;
-            min-width: 150px;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
+            font-size: 0.9rem;
         }
 
         .btn:hover {
             background: white;
             color: #667eea;
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #2d3748;
-            border-color: #ffd700;
-            font-weight: 700;
+            background: white;
+            color: #667eea;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(45deg, #ffed4e, #ffd700);
-            color: #1a202c;
-            border-color: #ffed4e;
-        }
-
-        .search-box {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .search-input {
-            flex: 1;
             background: transparent;
-            border: none;
             color: white;
-            font-size: 1rem;
-            font-family: inherit;
-            padding: 0.5rem 1rem;
-            direction: rtl;
         }
 
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .search-input:focus {
-            outline: none;
-        }
-
-        .search-btn {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #2d3748;
-            border: none;
-            border-radius: 20px;
-            padding: 0.8rem 1.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .search-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-
-        .floating-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .floating-element {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            animation: floatAround 8s ease-in-out infinite;
-        }
-
-        .floating-element:nth-child(1) {
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-            animation-duration: 10s;
-        }
-
-        .floating-element:nth-child(2) {
-            top: 20%;
-            right: 15%;
-            animation-delay: 2s;
-            animation-duration: 12s;
-        }
-
-        .floating-element:nth-child(3) {
-            bottom: 30%;
-            left: 20%;
-            animation-delay: 4s;
-            animation-duration: 9s;
-        }
-
-        .floating-element:nth-child(4) {
-            bottom: 15%;
-            right: 25%;
-            animation-delay: 1s;
-            animation-duration: 11s;
-        }
-
-        @keyframes floatAround {
-            0%, 100% {
-                transform: translateY(0px) translateX(0px) rotate(0deg);
-                opacity: 0.1;
-            }
-            25% {
-                transform: translateY(-20px) translateX(10px) rotate(90deg);
-                opacity: 0.3;
-            }
-            50% {
-                transform: translateY(-10px) translateX(-15px) rotate(180deg);
-                opacity: 0.2;
-            }
-            75% {
-                transform: translateY(15px) translateX(5px) rotate(270deg);
-                opacity: 0.4;
-            }
-        }
-
-        .brand-link {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-
-        .brand-link:hover {
-            opacity: 1;
-        }
-
-        .popular-articles {
-            text-align: right;
-            margin-top: 1rem;
-        }
-
-        .popular-articles h4 {
-            margin-bottom: 0.8rem;
-            color: #ffd700;
-        }
-
-        .article-link {
-            display: block;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .article-link:hover {
-            color: #ffd700;
-            padding-right: 1rem;
-            border-bottom-color: #ffd700;
-        }
-
-        .article-link:last-child {
-            border-bottom: none;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .error-container {
-                margin: 1rem;
-                padding: 2rem 1.5rem;
-            }
-
-            .error-code {
-                font-size: 6rem;
-            }
-
-            .error-title {
-                font-size: 2rem;
-            }
-
-            .error-message {
-                font-size: 1.1rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .brand-link {
-                position: static;
-                display: block;
-                text-align: center;
-                margin-bottom: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .error-container {
-                padding: 1.5rem 1rem;
+                padding: 1.5rem;
             }
 
             .error-code {
@@ -404,176 +110,51 @@
                 font-size: 1.5rem;
             }
 
-            .suggestions-list li {
-                font-size: 0.9rem;
+            .action-buttons {
+                flex-direction: column;
             }
-        }
 
-        /* تحسين الوصولية */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+            .btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <a href="/" class="brand-link">محتوى</a>
-    
-    <div class="floating-elements">
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-    </div>
-
     <div class="error-container">
         <div class="error-code">404</div>
         
         <h1 class="error-title">الصفحة غير موجودة</h1>
         
         <p class="error-message">
-            عذراً! يبدو أن الصفحة التي تبحث عنها قد انتقلت، حُذفت، أو لم تعد موجودة. لكن لا تقلق، هناك الكثير من المحتوى الرائع في انتظارك!
+            عذراً! الصفحة التي تبحث عنها غير موجودة أو قد تم نقلها.
         </p>
-
-        <div class="error-suggestions">
-            <h3>💡 ماذا يمكنك أن تفعل؟</h3>
-            
-            <ul class="suggestions-list">
-                <li>تحقق من صحة الرابط الذي أدخلته</li>
-                <li>ابحث عن المحتوى الذي تريده باستخدام مربع البحث</li>
-                <li>تصفح أحدث المقالات والمواضيع المثيرة</li>
-                <li>تواصل معنا إذا كنت تواجه مشكلة تقنية</li>
-            </ul>
-
-            <div class="search-box">
-                <input type="text" class="search-input" placeholder="ابحث عن المحتوى الذي تريده..." id="searchInput">
-                <button class="search-btn" onclick="performSearch()">🔍 بحث</button>
-            </div>
-
-            <div class="popular-articles">
-                <h4>📖 مقالات مشهورة:</h4>
-                <a href="/articles/ai-future-work.html" class="article-link">الذكاء الاصطناعي وتأثيره على مستقبل العمل</a>
-                <a href="/articles/water-benefits.html" class="article-link">فوائد شرب الماء: أكثر مما تتخيل</a>
-                <a href="/articles/arab-heritage.html" class="article-link">تراث الحضارة العربية: كنوز منسية</a>
-                <a href="/articles/time-management.html" class="article-link">فن إدارة الوقت: كيف تحقق التوازن المثالي</a>
-            </div>
-        </div>
 
         <div class="action-buttons">
             <a href="/" class="btn btn-primary">
                 🏠 العودة للرئيسية
             </a>
-            <a href="/#articles" class="btn">
-                📚 تصفح المقالات
-            </a>
-            <a href="/#contact" class="btn">
-                📞 اتصل بنا
-            </a>
+            <button onclick="window.history.back()" class="btn">
+                ↩️ رجوع
+            </button>
         </div>
     </div>
 
     <script>
-        // البحث الذكي
-        function performSearch() {
-            const searchInput = document.getElementById('searchInput');
-            const query = searchInput.value.trim();
-            
-            if (query) {
-                // توجيه إلى الصفحة الرئيسية مع معامل البحث
-                window.location.href = `/#articles?search=${encodeURIComponent(query)}`;
-            } else {
-                // هز مربع البحث لتنبيه المستخدم
-                searchInput.style.animation = 'shake 0.5s ease-in-out';
-                setTimeout(() => {
-                    searchInput.style.animation = '';
-                }, 500);
-            }
-        }
+        // Auto redirect after 10 seconds
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 10000);
 
-        // البحث بالضغط على Enter
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // تتبع الأخطاء للتحليل
-        document.addEventListener('DOMContentLoaded', function() {
-            // إرسال تقرير عن الصفحة المفقودة (إذا كان لديك نظام تتبع)
-            const missingUrl = document.referrer || window.location.href;
-            console.log('404 Error for:', missingUrl);
-            
-            // يمكن إرسال هذه المعلومات لخدمة تتبع الأخطاء
-            // trackError('404', missingUrl);
-        });
-
-        // إضافة تحسينات للتفاعل
+        // Add interaction effects
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-3px) scale(1.05)';
+                this.style.transform = 'translateY(-2px) scale(1.05)';
             });
             
             btn.addEventListener('mouseleave', function() {
                 this.style.transform = '';
             });
-        });
-
-        // تحسين مربع البحث
-        const searchInput = document.getElementById('searchInput');
-        
-        searchInput.addEventListener('focus', function() {
-            this.parentElement.style.borderColor = '#ffd700';
-            this.parentElement.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.3)';
-        });
-        
-        searchInput.addEventListener('blur', function() {
-            this.parentElement.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            this.parentElement.style.boxShadow = 'none';
-        });
-
-        // إضافة CSS للاهتزاز
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-5px); }
-                75% { transform: translateX(5px); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // تحسين الوصولية
-        document.addEventListener('keydown', function(e) {
-            // العودة للرئيسية بالضغط على Escape
-            if (e.key === 'Escape') {
-                window.location.href = '/';
-            }
-        });
-
-        // إضافة تأثيرات صوتية (اختيارية)
-        function playErrorSound() {
-            // يمكن إضافة ملف صوتي قصير للخطأ
-            // const audio = new Audio('/sounds/error.mp3');
-            // audio.play().catch(() => {});
-        }
-
-        // تشغيل التأثيرات عند التحميل
-        window.addEventListener('load', function() {
-            // playErrorSound();
-            
-            // إضافة تأثير للظهور التدريجي للعناصر
-            const container = document.querySelector('.error-container');
-            container.style.opacity = '0';
-            container.style.transform = 'translateY(50px)';
-            
-            setTimeout(() => {
-                container.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0)';
-            }, 100);
         });
     </script>
 </body>
