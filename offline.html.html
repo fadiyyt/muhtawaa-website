@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غير متصل - محتوى</title>
+    <meta name="description" content="أنت غير متصل بالإنترنت حالياً">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            direction: rtl;
+        }
+
+        .offline-container {
+            max-width: 500px;
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .offline-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .offline-tips {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .offline-tips h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .offline-tips ul {
+            list-style: none;
+            text-align: right;
+        }
+
+        .offline-tips li {
+            margin-bottom: 0.5rem;
+            padding-right: 1rem;
+            position: relative;
+        }
+
+        .offline-tips li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: white;
+        }
+
+        .cached-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cached-content h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cached-articles {
+            display: grid;
+            gap: 0.8rem;
+            text-align: right;
+        }
+
+        .cached-article {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cached-article:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .cached-article h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .cached-article p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .network-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .network-status.offline {
+            background: #ef4444;
+            color: white;
+        }
+
+        .network-status.online {
+            background: #10b981;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-indicator {
+            display: none;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .offline-container {
+                margin: 1rem;
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .offline-message {
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="network-status offline" id="networkStatus">
+        🔌 غير متصل
+    </div>
+
+    <div class="offline-container">
+        <div class="offline-icon">🔌</div>
+        
+        <h1>غير متصل بالإنترنت</h1>
+        
+        <div class="offline-message">
+            يبدو أن اتصالك بالإنترنت منقطع حالياً. لا تقلق، يمكنك الاستمرار في تصفح المحتوى المحفوظ محلياً.
+        </div>
+
+        <div class="offline-tips">
+            <h3>💡 نصائح للاتصال:</h3>
+            <ul>
+                <li>تحقق من اتصال الواي فاي</li>
+                <li>تأكد من بيانات الجوال</li>
+                <li>أعد تشغيل جهاز التوجيه</li>
+                <li>تحقق من إعدادات الشبكة</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="tryReconnect()">
+                🔄 المحاولة مرة أخرى
+            </button>
+            <button class="btn" onclick="goHome()">
+                🏠 الصفحة الرئيسية
+            </button>
+        </div>
+
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>جاري المحاولة...</p>
+        </div>
+
+        <div class="cached-content" id="cachedContent">
+            <h3>
+                💾 المحتوى المحفوظ محلياً
+            </h3>
+            <div class="cached-articles" id="cachedArticles">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check network status
+        function updateNetworkStatus() {
+            const statusElement = document.getElementById('networkStatus');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'network-status online';
+                statusElement.innerHTML = '✅ متصل';
+                
+                // Auto redirect after 2 seconds if back online
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.className = 'network-status offline';
+                statusElement.innerHTML = '🔌 غير متصل';
+            }
+        }
+
+        // Try to reconnect
+        async function tryReconnect() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = 'block';
+
+            try {
+                // Try to fetch a simple resource
+                const response = await fetch('/', { 
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok) {
+                    // Redirect to home page
+                    window.location.href = '/';
+                } else {
+                    throw new Error('Network still unavailable');
+                }
+            } catch (error) {
+                loadingIndicator.style.display = 'none';
+                
+                // Show message that connection is still unavailable
+                const message = document.createElement('div');
+                message.style.cssText = `
+                    background: rgba(239, 68, 68, 0.9);
+                    color: white;
+                    padding: 0.8rem;
+                    border-radius: 10px;
+                    margin-top: 1rem;
+                    font-size: 0.9rem;
+                `;
+                message.textContent = 'لا يزال الاتصال غير متوفر. حاول مرة أخرى لاحقاً.';
+                
+                document.querySelector('.offline-container').appendChild(message);
+                
+                // Remove message after 3 seconds
+                setTimeout(() => {
+                    message.remove();
+                }, 3000);
+            }
+        }
+
+        // Go to home page (will try to load from cache)
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Load cached articles
+        async function loadCachedArticles() {
+            try {
+                const cache = await caches.open('muhtawaa-v1.0');
+                const requests = await cache.keys();
+                
+                const articles = requests
+                    .filter(request => request.url.includes('/articles/'))
+                    .slice(0, 5) // Show only first 5
+                    .map(request => {
+                        const pathname = new URL(request.url).pathname;
+                        const articleName = pathname.split('/').pop().replace('.html', '');
+                        
+                        return {
+                            url: request.url,
+                            title: getArticleTitle(articleName),
+                            description: 'متوفر للقراءة بدون اتصال'
+                        };
+                    });
+
+                const cachedArticlesContainer = document.getElementById('cachedArticles');
+                
+                if (articles.length === 0) {
+                    cachedArticlesContainer.innerHTML = `
+                        <div class="cached-article">
+                            <p>لا توجد مقالات محفوظة حالياً</p>
+                        </div>
+                    `;
+                } else {
+                    cachedArticlesContainer.innerHTML = articles.map(article => `
+                        <div class="cached-article" onclick="window.location.href='${article.url}'">
+                            <h4>${article.title}</h4>
+                            <p>${article.description}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading cached articles:', error);
+                document.getElementById('cachedContent').style.display = 'none';
+            }
+        }
+
+        // Get article title from filename
+        function getArticleTitle(filename) {
+            const titles = {
+                'ai-future-work': 'الذكاء الاصطناعي وتأثيره على مستقبل العمل',
+                'water-benefits': 'فوائد شرب الماء: أكثر مما تتخيل',
+                'arab-heritage': 'تراث الحضارة العربية: كنوز منسية',
+                'time-management': 'فن إدارة الوقت: كيف تحقق التوازن المثالي',
+                'climate-change': 'التغير المناخي: التحديات والحلول المستدامة',
+                'cybersecurity': 'أمن المعلومات: كيف تحمي بياناتك الشخصية',
+                'healthy-cooking': 'الطبخ الصحي: وصفات لذيذة ومغذية',
+                'sports-mental-health': 'الرياضة والصحة النفسية: علاقة قوية ومفيدة',
+                'investment-beginners': 'الاستثمار للمبتدئين: خطواتك الأولى نحو الحرية المالية'
+            };
+            
+            return titles[filename] || 'مقال محفوظ';
+        }
+
+        // Event listeners
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNetworkStatus();
+            loadCachedArticles();
+
+            // Check connection periodically
+            setInterval(updateNetworkStatus, 5000);
+        });
+
+        // Handle back button
+        window.addEventListener('popstate', function(event) {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            }
+        });
+
+        // Add some interactivity
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px) scale(1.02)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

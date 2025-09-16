@@ -1,0 +1,315 @@
+[build]
+  # Build command (not needed for static sites, but kept for future use)
+  command = "echo 'Building Muhtawaa...'"
+  
+  # Publish directory
+  publish = "."
+  
+  # Functions directory (for future serverless functions)
+  functions = "netlify/functions"
+
+# Build settings
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--prefer-offline --no-audit"
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security Headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    
+    # Content Security Policy
+    Content-Security-Policy = '''
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https: http:;
+      connect-src 'self' https://www.google-analytics.com;
+      frame-src 'none';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+    '''
+    
+    # Performance Headers
+    X-DNS-Prefetch-Control = "on"
+
+# Cache optimization for static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# PWA Headers
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# API Headers (for future use)
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://muhtawaa.com"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Redirect rules
+[[redirects]]
+  from = "/old-site/*"
+  to = "/articles/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/articles/:splat"
+  status = 301
+
+# Handle Arabic URLs
+[[redirects]]
+  from = "/مقالات/*"
+  to = "/articles/:splat"
+  status = 301
+
+# SPA fallback (for future client-side routing)
+[[redirects]]
+  from = "/app/*"
+  to = "/index.html"
+  status = 200
+
+# 404 page
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# URL rewrites for clean URLs
+[[rewrites]]
+  from = "/article/:slug"
+  to = "/articles/:slug.html"
+
+# Edge functions for performance (future use)
+# [[edge_functions]]
+#   function = "geo-redirect"
+#   path = "/api/geo"
+
+# Form handling
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Environment-specific settings
+[context.production.environment]
+  NODE_ENV = "production"
+  GA_TRACKING_ID = "G-XXXXXXXXXX"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "staging"
+
+# Plugin configuration
+[[plugins]]
+  package = "netlify-plugin-minify-html"
+  [plugins.inputs]
+    contexts = [
+      "production"
+    ]
+
+[[plugins]]
+  package = "netlify-plugin-lighthouse"
+  [plugins.inputs]
+    output_path = "reports/lighthouse.html"
+
+# Performance optimizations
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Analytics and monitoring
+[template.environment]
+  ANALYTICS_ID = "your-analytics-id"
+
+# Prerendering for better SEO
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+# Split testing (A/B testing)
+# [[plugins]]
+#   package = "netlify-plugin-split-testing"
+
+# Form submissions
+[template.environment]
+  CONTACT_WEBHOOK_URL = "https://formspree.io/f/your-form-id"
+
+# Custom domains
+# [context.production]
+#   command = "echo 'Production build'"
+  
+# Functions (for future serverless functionality)
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Large Media (for future image optimization)
+[large_media]
+  lfs = false
+
+# Identity (for future user authentication)
+[identity]
+  providers = ["google", "github"]
+
+# Git LFS
+[lfs]
+  enabled = false
+
+# Deploy contexts
+[context.production]
+  [context.production.environment]
+    NODE_ENV = "production"
+    HUGO_ENV = "production"
+
+[context.deploy-preview]
+  command = "echo 'Deploy preview'"
+
+[context.branch-deploy]
+  command = "echo 'Branch deploy'"
+
+# Dev settings
+[dev]
+  command = "python -m http.server 8888"
+  port = 8888
+  publish = "."
+  autoLaunch = true
+
+# Build hooks
+[template]
+  incoming_hooks = ["deploy-succeeded"]
+
+# Notifications
+[notifications]
+  email = ["fadi.takkem@gmail.com"]
+
+# Access control
+# [template.environment]
+#   JWT_SECRET = "your-jwt-secret"
+
+# Rate limiting (for future API endpoints)
+# [[redirects]]
+#   from = "/api/*"
+#   to = "/.netlify/functions/:splat"
+#   status = 200
+#   headers = {X-Rate-Limit = "100 per hour"}
+
+# Geo-IP redirects (for future multi-language support)
+# [[redirects]]
+#   from = "/"
+#   to = "/ar"
+#   status = 302
+#   conditions = {Country = ["SA", "AE", "EG", "JO", "LB", "SY", "IQ", "KW", "QA", "BH", "OM", "YE", "LY", "TN", "DZ", "MA", "SD", "PS"]}
+
+# Performance monitoring
+[template.environment]
+  ENABLE_PERFORMANCE_MONITORING = "true"
+
+# Security monitoring
+[template.environment]
+  SECURITY_MONITORING = "enabled"
+
+# Feature flags
+[template.environment]
+  FEATURE_DARK_MODE = "true"
+  FEATURE_PWA = "true"
+  FEATURE_OFFLINE = "true"
+
+# Backup strategy
+[template.environment]
+  BACKUP_ENABLED = "true"
+  BACKUP_FREQUENCY = "daily"
+
+# Search functionality (for future implementation)
+[template.environment]
+  SEARCH_ENGINE = "local"
+  SEARCH_INDEX_UPDATE = "auto"
