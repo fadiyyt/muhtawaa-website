@@ -433,9 +433,7 @@ function renderArticles(articles, append = false) {
     setTimeout(() => animateArticleCards(), 100);
 }
 
-// ===== باقي الكود يبقى كما هو مع إضافة معالجة أفضل للأخطاء =====
-
-// إنشاء عنصر المقال
+// ===== إنشاء عنصر المقال =====
 function createArticleElement(article) {
     if (!article) {
         throw new Error('بيانات المقال غير موجودة');
@@ -543,9 +541,6 @@ function getFallbackArticles() {
     ];
 }
 
-// باقي الوظائف تبقى كما هي...
-// [يمكنني إضافة باقي الوظائف إذا كنت تريد الملف كاملاً]
-
 // === إعداد مستمعي الأحداث ===
 function setupEventListeners() {
     try {
@@ -585,7 +580,148 @@ function setupEventListeners() {
     }
 }
 
-// === باقي الوظائف كما هي ===
+// === تحسين التنقل - محدث مع الهيدر الثابت وزر العودة للأعلى ===
+function enhanceNavigationAndUI() {
+    try {
+        // تحسين القائمة المحمولة
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // إغلاق القائمة عند النقر على رابط
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
+        }
+
+        // تحسين التنقل السلس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // إعداد شريط التنقل الثابت
+        setupStickyHeader();
+        
+        // إعداد زر العودة للأعلى
+        setupBackToTopButton();
+        
+    } catch (error) {
+        console.error('خطأ في تحسين التنقل:', error);
+    }
+}
+
+// === إعداد شريط التنقل الثابت ===
+function setupStickyHeader() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function updateHeader() {
+        const scrollY = window.scrollY;
+        
+        if (scrollY > 100) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+
+        lastScrollY = scrollY;
+        ticking = false;
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateHeader);
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', requestTick);
+}
+
+// === إعداد زر العودة للأعلى ===
+function setupBackToTopButton() {
+    const backToTopButton = document.getElementById('backToTop');
+    if (!backToTopButton) {
+        console.warn('زر العودة للأعلى غير موجود في DOM');
+        return;
+    }
+
+    let isVisible = false;
+    let ticking = false;
+
+    function updateBackToTopButton() {
+        const scrollY = window.scrollY;
+        const shouldShow = scrollY > 300;
+
+        if (shouldShow && !isVisible) {
+            backToTopButton.classList.add('show');
+            isVisible = true;
+        } else if (!shouldShow && isVisible) {
+            backToTopButton.classList.remove('show');
+            isVisible = false;
+        }
+
+        ticking = false;
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateBackToTopButton);
+            ticking = true;
+        }
+    }
+
+    // مستمع التمرير
+    window.addEventListener('scroll', requestTick);
+
+    // مستمع النقر
+    backToTopButton.addEventListener('click', function() {
+        // تأثير بصري عند النقر
+        this.style.transform = 'translateY(-2px) scale(0.95)';
+        
+        // العودة للأعلى
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        // إعادة تعيين التأثير
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+
+    // تأثيرات إضافية
+    backToTopButton.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px) scale(1.1)';
+    });
+
+    backToTopButton.addEventListener('mouseleave', function() {
+        this.style.transform = isVisible ? 'translateY(0)' : 'translateY(10px)';
+    });
+}
+
+// === باقي الوظائف تبقى كما هي ===
 
 // معالج البحث
 function handleSearch(e) {
@@ -1047,171 +1183,11 @@ function clearAllFilters() {
     }
 }
 
-// === تحسين التنقل ===
-function enhanceNavigationAndUI() {
-    try {
-        // تحسين القائمة المحمولة
-        const hamburger = document.querySelector('.hamburger');
-        const navMenu = document.querySelector('.nav-menu');
-
-        if (hamburger && navMenu) {
-            hamburger.addEventListener('click', function() {
-                this.classList.toggle('active');
-                navMenu.classList.toggle('active');
-            });
-
-            // إغلاق القائمة عند النقر على رابط
-            document.querySelectorAll('.nav-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    hamburger.classList.remove('active');
-                    navMenu.classList.remove('active');
-                });
-            });
-        }
-
-        // تحسين التنقل السلس
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    } catch (error) {
-        console.error('خطأ في تحسين التنقل:', error);
-    }
+// === وظائف فارغة للمستقبل ===
+function showSearchSuggestions() {
+    // يمكن إضافة اقتراحات البحث هنا
 }
 
-// === إضافة أنماط CSS للحالات الجديدة ===
-if (!document.getElementById('dynamic-styles')) {
-    const styles = document.createElement('style');
-    styles.id = 'dynamic-styles';
-    styles.textContent = `
-        .initial-loading {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #666;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 2rem;
-        }
-        
-        .detailed-error-message {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .error-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        
-        .error-suggestions {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin: 1.5rem 0;
-            text-align: right;
-        }
-        
-        .error-suggestions ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .error-suggestions li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .error-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 2rem 0;
-        }
-        
-        .retry-btn, .fallback-btn, .clear-cache-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        .fallback-btn {
-            background: linear-gradient(45deg, #48bb78, #38a169);
-        }
-        
-        .clear-cache-btn {
-            background: linear-gradient(45deg, #ed8936, #dd7324);
-        }
-        
-        .retry-btn:hover, .fallback-btn:hover, .clear-cache-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .error-details {
-            margin-top: 2rem;
-            text-align: right;
-        }
-        
-        .error-stack {
-            background: #f1f1f1;
-            padding: 1rem;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-        
-        .no-articles-message, .no-articles-found {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #666;
-        }
-        
-        .load-fallback-btn {
-            background: linear-gradient(45deg, #4299e1, #3182ce);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Cairo', sans-serif;
-            margin-top: 1rem;
-        }
-        
-        .load-fallback-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.3);
-        }
-    `;
-    document.head.appendChild(styles);
+function hideSearchSuggestions() {
+    // يمكن إضافة إخفاء اقتراحات البحث هنا
 }
