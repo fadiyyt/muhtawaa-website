@@ -42,8 +42,7 @@
         .about-content,
         .contact-content,
         .feature,
-        .contact-method,
-        .contact-form-section {
+        .contact-method {
             opacity: 1;
             visibility: visible;
         }
@@ -372,42 +371,6 @@
                         </a>
                     </div>
                 </div>
-
-                <div class="contact-form-section fade-in">
-                    <h3>أو اتركوا رسالة مباشرة</h3>
-                    <form class="contact-form" novalidate>
-                        <div class="form-group">
-                            <input type="text" name="name" placeholder="الاسم الكامل" required aria-label="اسمك الكامل">
-                            <div class="form-error"></div>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" name="email" placeholder="البريد الإلكتروني" required aria-label="بريدك الإلكتروني">
-                            <div class="form-error"></div>
-                        </div>
-                        <div class="form-group">
-                            <select name="subject" required aria-label="موضوع الرسالة">
-                                <option value="">اختر موضوع الرسالة</option>
-                                <option value="suggestion">اقتراح محتوى</option>
-                                <option value="feedback">ملاحظة أو تقييم</option>
-                                <option value="collaboration">تعاون أو شراكة</option>
-                                <option value="technical">مشكلة تقنية</option>
-                                <option value="other">أخرى</option>
-                            </select>
-                            <div class="form-error"></div>
-                        </div>
-                        <div class="form-group">
-                            <textarea name="message" placeholder="اكتب رسالتك هنا..." required aria-label="نص رسالتك"></textarea>
-                            <div class="form-error"></div>
-                        </div>
-                        <button type="submit" class="form-submit">
-                            <span class="button-text">إرسال الرسالة</span>
-                            <span class="button-loading" style="display: none;">
-                                <span class="spinner-small"></span>
-                                جاري الإرسال...
-                            </span>
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </section>
@@ -429,16 +392,6 @@
                             <li><a href="#about">من نحن</a></li>
                             <li><a href="#articles">المقالات</a></li>
                             <li><a href="#contact">اتصل بنا</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="footer-section">
-                        <h4>التصنيفات</h4>
-                        <ul>
-                            <li><a href="#" data-category="تقنية">تقنية</a></li>
-                            <li><a href="#" data-category="صحة">صحة</a></li>
-                            <li><a href="#" data-category="ثقافة">ثقافة</a></li>
-                            <li><a href="#" data-category="رياضة">رياضة</a></li>
                         </ul>
                     </div>
                 </div>
@@ -471,7 +424,7 @@
     </footer>
 
     <!-- Back to Top Button -->
-    <button id="backToTop" class="back-to-top" aria-label="العودة للأعلى" style="display: none;">
+    <button id="backToTop" class="back-to-top" aria-label="العودة للأعلى" title="العودة للأعلى">
         ⬆️
     </button>
 
