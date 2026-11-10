@@ -1,0 +1,64 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "title": "الرئيسية"
+    },
+    {
+      "path": "/tools.html",
+      "title": "كل الأدوات"
+    },
+    {
+      "path": "/about.html",
+      "title": "/about.html"
+    },
+    {
+      "path": "/privacy.html",
+      "title": "/privacy.html"
+    },
+    {
+      "path": "/contact.html",
+      "title": "/contact.html"
+    },
+    {
+      "path": "/tools/age-calculator.html",
+      "title": "حاسبة العمر"
+    },
+    {
+      "path": "/tools/date-difference.html",
+      "title": "الفرق بين تاريخين"
+    },
+    {
+      "path": "/tools/hijri-converter.html",
+      "title": "محول التاريخ إلى هجري"
+    },
+    {
+      "path": "/tools/word-counter.html",
+      "title": "عداد الكلمات والحروف"
+    },
+    {
+      "path": "/tools/qr-code.html",
+      "title": "إنشاء QR Code"
+    },
+    {
+      "path": "/tools/image-compressor.html",
+      "title": "ضغط الصور"
+    },
+    {
+      "path": "/tools/image-resizer.html",
+      "title": "تغيير حجم الصور"
+    },
+    {
+      "path": "/tools/image-converter.html",
+      "title": "تحويل صيغ الصور"
+    },
+    {
+      "path": "/tools/text-cleaner.html",
+      "title": "تنظيف وتنسيق النص"
+    },
+    {
+      "path": "/tools/invoice-generator.html",
+      "title": "إنشاء فاتورة بسيطة"
+    }
+  ]
+}
