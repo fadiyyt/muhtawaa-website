@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261111-7'
+ASSET_VERSION = '20261111-8'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -100,6 +100,7 @@ def head(title, description, canonical, extra=''):
   <meta name="twitter:image:alt" content="محتوى أدوات — أدوات عربية مجانية">
   <meta name="theme-color" content="#18a673">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/Cairo-Arabic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/site.css?v={ASSET_VERSION}">
   {extra}
 </head>'''
@@ -142,7 +143,7 @@ def guide_markup(tool):
     steps = ''.join(f'<li>{escape(item)}</li>' for item in tool.get('howTo', []))
     notes = ''.join(f'<li>{escape(item)}</li>' for item in tool.get('notes', []))
     examples = ''.join(f'<div class="example-card"><h3>{escape(item["title"])}</h3><p>{escape(item["text"])}</p></div>' for item in tool.get('examples', []))
-    return f'''<h2>طريقة الاستخدام</h2><p>{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة قبل استخدامها.'))}</p><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
+    return f'''<h2>طريقة الاستخدام</h2><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
 
 
 def tool_page(tool, tools):

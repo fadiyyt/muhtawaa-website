@@ -55,4 +55,15 @@ const formatLocalDate = new Function(`${source.slice(localDateStart, localDateEn
 const formatted = formatLocalDate(new Date(2026, 0, 5, 0, 30));
 if (formatted !== '2026-01-05') throw new Error(`Local date formatting expected 2026-01-05, got ${formatted}`);
 console.log(`OK local date formatting: ${formatted}`);
-console.log(`Checked ${Object.keys(numberCases).length} number-to-words cases and ${ageCases.length + 2} age cases`);
+
+const randomStart = source.indexOf('function secureRandomIndex(');
+const randomEnd = source.indexOf('function bindPassword()', randomStart);
+if (randomStart < 0 || randomEnd < 0) throw new Error('secureRandomIndex implementation not found');
+const randomSamples = [0xffffffff, 9];
+let randomCalls = 0;
+const mockCrypto = { getRandomValues(buffer) { buffer[0] = randomSamples[randomCalls++]; return buffer; } };
+const secureRandomIndex = new Function('crypto', `${source.slice(randomStart, randomEnd)}; return secureRandomIndex;`)(mockCrypto);
+const selectedIndex = secureRandomIndex(10);
+if (selectedIndex !== 9 || randomCalls !== 2) throw new Error(`Rejection sampling expected index 9 after 2 draws; got ${selectedIndex} after ${randomCalls}`);
+console.log(`OK unbiased random selection rejects out-of-range values (${randomCalls} draws)`);
+console.log(`Checked ${Object.keys(numberCases).length} number-to-words cases, ${ageCases.length + 2} age cases, and password rejection sampling`);

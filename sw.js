@@ -1,5 +1,5 @@
-const CACHE_NAME = 'muhtawaa-tools-v2';
-const CORE = ['/', '/tools.html', '/assets/css/site.css', '/assets/js/site.js', '/assets/js/tool-app.js', '/favicon.svg', '/og-image.svg'];
+const CACHE_NAME = 'muhtawaa-tools-v3';
+const CORE = ['/', '/tools.html', '/assets/css/site.css', '/assets/js/site.js', '/assets/js/tool-app.js', '/assets/fonts/Cairo-Arabic.woff2', '/assets/fonts/Cairo-Latin.woff2', '/assets/fonts/Cairo-Latin-Ext.woff2', '/favicon.svg', '/og-image.svg'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', event => { if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) return; event.respondWith(fetch(event.request).then(response => { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)); return response; }).catch(() => caches.match(event.request))); });

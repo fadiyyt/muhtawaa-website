@@ -192,7 +192,32 @@
   function numberWords(value) { if (value === 0) return 'صفر'; if (value > 999999999) return ''; const groups = [[1000000, 'مليون', 'مليونان', 'ملايين'], [1000, 'ألف', 'ألفان', 'آلاف']]; let rest = value; const parts = []; for (const [factor, singular, dual, plural] of groups) { const count = Math.floor(rest / factor); if (count) parts.push(count === 1 ? singular : count === 2 ? dual : `${threeWords(count)} ${count < 11 ? plural : singular}`); rest %= factor; } if (rest) parts.push(threeWords(rest)); return parts.join(' و'); }
   function bindNumberWords() { const form = $('#number-words-form'); const box = $('#tool-result'); form.addEventListener('submit', event => { event.preventDefault(); const value = Number($('#number-input').value); if (!Number.isInteger(value) || value < 0 || value > 999999999) return showResult(box, error('أدخل عددًا صحيحًا بين صفر و999,999,999.'), true); showResult(box, `<div class="result-big">${esc(numberWords(value))}</div>`); }); $('.button-quiet').addEventListener('click', () => copyText(box.textContent)); }
   function bindBmi() { $('#bmi-form').addEventListener('submit', event => { event.preventDefault(); const height = numberValue('#bmi-height') / 100; const weight = numberValue('#bmi-weight'); const box = $('#tool-result'); if (!validNumber(height) || !validNumber(weight) || height <= 0 || weight <= 0) return showResult(box, error('أدخل الطول والوزن بشكل صحيح.'), true); const bmi = weight / (height * height); const label = bmi < 18.5 ? 'نقص في الوزن' : bmi < 25 ? 'ضمن النطاق المعتاد' : bmi < 30 ? 'زيادة في الوزن' : 'سمنة'; showResult(box, `<div class="result-big">${bmi.toFixed(1)}</div><div class="result-muted">التصنيف التقريبي: ${label}. هذه النتيجة إرشادية وليست تشخيصًا طبيًا.</div>`); }); }
-  function bindPassword() { const length = $('#password-length'); const output = $('#password-output'); $('#password-length-value').textContent = length.value; length.addEventListener('input', () => { $('#password-length-value').textContent = length.value; }); const generate = () => { let chars = 'abcdefghijklmnopqrstuvwxyz'; if ($('#password-upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if ($('#password-number').checked) chars += '0123456789'; if ($('#password-symbol').checked) chars += '!@#$%^&*()-_=+'; const values = new Uint32Array(Number(length.value)); crypto.getRandomValues(values); output.value = [...values].map(value => chars[value % chars.length]).join(''); }; $('.button-primary').addEventListener('click', generate); $('.button-quiet').addEventListener('click', () => copyText(output.value)); generate(); }
+  function secureRandomIndex(length) {
+    if (!Number.isInteger(length) || length < 1) throw new RangeError('length must be a positive integer');
+    const limit = Math.floor(0x100000000 / length) * length;
+    const buffer = new Uint32Array(1);
+    let value;
+    do {
+      crypto.getRandomValues(buffer);
+      value = buffer[0];
+    } while (value >= limit);
+    return value % length;
+  }
+  function bindPassword() {
+    const length = $('#password-length'), output = $('#password-output');
+    $('#password-length-value').textContent = length.value;
+    length.addEventListener('input', () => { $('#password-length-value').textContent = length.value; });
+    const generate = () => {
+      let chars = 'abcdefghijklmnopqrstuvwxyz';
+      if ($('#password-upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if ($('#password-number').checked) chars += '0123456789';
+      if ($('#password-symbol').checked) chars += '!@#$%^&*()-_=+';
+      output.value = Array.from({ length: Number(length.value) }, () => chars[secureRandomIndex(chars.length)]).join('');
+    };
+    $('.button-primary').addEventListener('click', generate);
+    $('.button-quiet').addEventListener('click', () => copyText(output.value));
+    generate();
+  }
   function bindJson() { const input = $('#json-input'); const output = $('#json-output'); const buttons = $$('.action-row button'); const transform = compact => { try { const value = JSON.parse(input.value); output.value = JSON.stringify(value, null, compact ? 0 : 2); output.classList.remove('error-message'); } catch (exception) { output.value = `خطأ في JSON: ${exception.message}`; output.classList.add('error-message'); } }; buttons[0].addEventListener('click', () => transform(false)); buttons[1].addEventListener('click', () => transform(true)); buttons[2].addEventListener('click', () => copyText(output.value)); }
 
   render();
