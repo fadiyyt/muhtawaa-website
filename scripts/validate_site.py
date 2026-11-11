@@ -54,20 +54,21 @@ for path in html_files:
             target = link.split('?', 1)[0].lstrip('/') or 'index.html'
             if target.endswith('.xml') or target.endswith('.txt'): continue
             candidate = ROOT / target
-            if not candidate.exists() and not (ROOT / target / 'index.html').exists():
+            html_candidate = ROOT / f'{target}.html'
+            if not candidate.exists() and not html_candidate.exists() and not (ROOT / target / 'index.html').exists():
                 fail(f'Broken internal link in {path.relative_to(ROOT)}: {link}')
 
 try:
     routes = json.loads((ROOT / 'manus-routes.json').read_text(encoding='utf-8'))
     route_paths = {item['path'] for item in routes['routes']}
-    category_paths = {f'/categories/{category["slug"]}.html' for category in data.get('categories', []) if sum(1 for tool in data.get('tools', []) if tool.get('category') == category.get('slug')) >= 2}
-    expected = {'/', '/tools.html', '/about.html', '/privacy.html', '/contact.html'} | category_paths | {f'/tools/{slug}.html' for slug in slugs}
+    category_paths = {f'/categories/{category["slug"]}' for category in data.get('categories', []) if sum(1 for tool in data.get('tools', []) if tool.get('category') == category.get('slug')) >= 2}
+    expected = {'/', '/tools', '/about', '/privacy', '/contact'} | category_paths | {f'/tools/{slug}' for slug in slugs}
     if route_paths != expected: fail('manus-routes.json does not match the expected page set')
 except Exception as exc:
     fail(f'manus-routes.json is invalid: {exc}')
 
 sitemap = (ROOT / 'sitemap.xml').read_text(encoding='utf-8') if (ROOT / 'sitemap.xml').exists() else ''
-for path in {'https://muhtawaa.com/', 'https://muhtawaa.com/tools.html'} | {f'https://muhtawaa.com/tools/{slug}.html' for slug in slugs}:
+for path in {'https://muhtawaa.com/', 'https://muhtawaa.com/tools'} | {f'https://muhtawaa.com/tools/{slug}' for slug in slugs}:
     if path not in sitemap: fail(f'Missing sitemap URL: {path}')
 
 if errors:

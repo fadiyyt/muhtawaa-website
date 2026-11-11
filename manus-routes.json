@@ -5,107 +5,107 @@
       "title": "الرئيسية"
     },
     {
-      "path": "/tools.html",
+      "path": "/tools",
       "title": "كل الأدوات"
     },
     {
-      "path": "/about.html",
-      "title": "/about.html"
+      "path": "/about",
+      "title": "/about"
     },
     {
-      "path": "/privacy.html",
-      "title": "/privacy.html"
+      "path": "/privacy",
+      "title": "/privacy"
     },
     {
-      "path": "/contact.html",
-      "title": "/contact.html"
+      "path": "/contact",
+      "title": "/contact"
     },
     {
-      "path": "/categories/calculators.html",
+      "path": "/categories/calculators",
       "title": "الحاسبات"
     },
     {
-      "path": "/categories/dates.html",
+      "path": "/categories/dates",
       "title": "التاريخ والوقت"
     },
     {
-      "path": "/categories/text.html",
+      "path": "/categories/text",
       "title": "النصوص"
     },
     {
-      "path": "/categories/images.html",
+      "path": "/categories/images",
       "title": "الصور"
     },
     {
-      "path": "/tools/age-calculator.html",
+      "path": "/tools/age-calculator",
       "title": "حاسبة العمر"
     },
     {
-      "path": "/tools/date-difference.html",
+      "path": "/tools/date-difference",
       "title": "الفرق بين تاريخين"
     },
     {
-      "path": "/tools/hijri-converter.html",
+      "path": "/tools/hijri-converter",
       "title": "محول التاريخ إلى هجري"
     },
     {
-      "path": "/tools/word-counter.html",
+      "path": "/tools/word-counter",
       "title": "عداد الكلمات والحروف"
     },
     {
-      "path": "/tools/qr-code.html",
+      "path": "/tools/qr-code",
       "title": "إنشاء QR Code"
     },
     {
-      "path": "/tools/image-compressor.html",
+      "path": "/tools/image-compressor",
       "title": "ضغط الصور"
     },
     {
-      "path": "/tools/image-resizer.html",
+      "path": "/tools/image-resizer",
       "title": "تغيير حجم الصور"
     },
     {
-      "path": "/tools/image-converter.html",
+      "path": "/tools/image-converter",
       "title": "تحويل صيغ الصور"
     },
     {
-      "path": "/tools/text-cleaner.html",
+      "path": "/tools/text-cleaner",
       "title": "تنظيف وتنسيق النص"
     },
     {
-      "path": "/tools/invoice-generator.html",
+      "path": "/tools/invoice-generator",
       "title": "إنشاء فاتورة بسيطة"
     },
     {
-      "path": "/tools/percentage-calculator.html",
+      "path": "/tools/percentage-calculator",
       "title": "حاسبة النسبة المئوية"
     },
     {
-      "path": "/tools/discount-calculator.html",
+      "path": "/tools/discount-calculator",
       "title": "حاسبة الخصم"
     },
     {
-      "path": "/tools/vat-calculator.html",
+      "path": "/tools/vat-calculator",
       "title": "حاسبة ضريبة القيمة المضافة"
     },
     {
-      "path": "/tools/unit-converter.html",
+      "path": "/tools/unit-converter",
       "title": "محول الوحدات"
     },
     {
-      "path": "/tools/number-to-words.html",
+      "path": "/tools/number-to-words",
       "title": "تحويل الأرقام إلى كلمات"
     },
     {
-      "path": "/tools/bmi-calculator.html",
+      "path": "/tools/bmi-calculator",
       "title": "حاسبة مؤشر كتلة الجسم BMI"
     },
     {
-      "path": "/tools/password-generator.html",
+      "path": "/tools/password-generator",
       "title": "مولد كلمات مرور"
     },
     {
-      "path": "/tools/json-formatter.html",
+      "path": "/tools/json-formatter",
       "title": "منسق JSON"
     }
   ]
