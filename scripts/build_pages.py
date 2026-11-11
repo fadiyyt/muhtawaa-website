@@ -4,7 +4,8 @@ from html import escape
 from pathlib import Path
 import json
 import subprocess
-from datetime import date
+import sys
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
@@ -16,32 +17,56 @@ def load_data():
     return json.loads(DATA.read_text(encoding='utf-8'))
 
 
-def lastmod_for(url):
-    """Return the latest committed source date for a generated route."""
+def output_path_for(url):
+    """Map a clean public route to its generated HTML file."""
     if url == '/':
-        sources = ['scripts/build_pages.py', 'data/tools.json']
-    elif url == '/tools':
-        sources = ['scripts/build_pages.py', 'data/tools.json']
-    elif url.startswith('/tools/'):
-        sources = ['scripts/build_pages.py', 'data/tools.json']
-    elif url.startswith('/categories/'):
-        sources = ['scripts/build_pages.py', 'data/tools.json']
-    else:
-        sources = [url.lstrip('/').replace('/', '/')] if url != '/' else ['index.html']
-    dates = []
-    for source in sources:
-        try:
-            result = subprocess.run(['git', 'log', '-1', '--format=%cs', '--', source], cwd=ROOT, capture_output=True, text=True, check=False)
-            if result.stdout.strip():
-                dates.append(result.stdout.strip())
-        except OSError:
-            pass
-    if dates:
-        return max(dates)
-    # Fallback for environments without Git history.
-    candidates = [ROOT / source for source in sources if (ROOT / source).exists()]
-    timestamps = [Path(path).stat().st_mtime for path in candidates]
-    return date.fromtimestamp(max(timestamps)).isoformat() if timestamps else date.today().isoformat()
+        return 'index.html'
+    return f'{url.lstrip("/")}.html'
+
+
+def git_commit_date(path):
+    """Return the last commit date for one generated file, or None without Git history."""
+    try:
+        result = subprocess.run(
+            ['git', 'log', '-1', '--format=%cs', '--', path],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout.strip() or None
+
+
+def previous_lastmods():
+    """Read existing sitemap dates before the next generated sitemap replaces it."""
+    path = ROOT / 'sitemap.xml'
+    if not path.exists():
+        return {}
+    namespace = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError as exc:
+        print(f'WARNING: cannot parse existing sitemap.xml: {exc}', file=sys.stderr)
+        return {}
+    result = {}
+    for node in root.findall('s:url', namespace):
+        loc = node.find('s:loc', namespace)
+        lastmod = node.find('s:lastmod', namespace)
+        if loc is not None and lastmod is not None and loc.text and lastmod.text:
+            route = loc.text.replace(SITE_URL, '', 1) or '/'
+            result[route] = lastmod.text
+    return result
+
+
+def lastmod_for(url, previous):
+    """Return the generated page's commit date, preserving old dates without Git."""
+    output = output_path_for(url)
+    date_value = git_commit_date(output)
+    if date_value:
+        return date_value
+    if url in previous:
+        print(f'WARNING: no Git history for {output}; keeping previous lastmod', file=sys.stderr)
+        return previous[url]
+    raise SystemExit(f'Cannot determine lastmod for {url}: no Git history and no previous sitemap value')
 
 
 def jsonld(value):
@@ -171,6 +196,7 @@ def category_page(category, tools):
 def write_site(data):
     tools = data['tools']
     category_data = data.get('categories', [])
+    previous = previous_lastmods()
     (ROOT / 'categories').mkdir(exist_ok=True)
     (ROOT / 'index.html').write_text(index_page(tools), encoding='utf-8')
     (ROOT / 'tools.html').write_text(catalog_page(tools, category_data), encoding='utf-8')
@@ -182,7 +208,7 @@ def write_site(data):
             (ROOT / 'categories' / f"{category['slug']}.html").write_text(category_page(category, tools), encoding='utf-8')
     category_urls = [f"/categories/{category['slug']}" for category in category_data if len([tool for tool in tools if tool['category'] == category['slug']]) >= 2]
     urls = ['/', '/tools', '/about', '/privacy', '/contact'] + category_urls + [f"/tools/{tool['slug']}" for tool in tools]
-    url_xml = '\n'.join(f'  <url><loc>{SITE_URL}{url}</loc><lastmod>{lastmod_for(url)}</lastmod></url>' for url in urls)
+    url_xml = '\n'.join(f'  <url><loc>{SITE_URL}{url}</loc><lastmod>{lastmod_for(url, previous)}</lastmod></url>' for url in urls)
     (ROOT / 'sitemap.xml').write_text(f'''<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{url_xml}\n</urlset>\n''', encoding='utf-8')
     routes = [{'path': url, 'title': 'الرئيسية' if url == '/' else 'كل الأدوات' if url == '/tools' else next((c['name'] for c in category_data if url == f"/categories/{c['slug']}"), next((t['name'] for t in tools if url == f"/tools/{t['slug']}"), url))} for url in urls]
     (ROOT / 'manus-routes.json').write_text(json.dumps({'routes': routes}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
