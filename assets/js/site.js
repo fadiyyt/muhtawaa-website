@@ -5,7 +5,7 @@
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
 
   function categoryName(slug) {
-    const names = { dates: 'التاريخ والوقت', text: 'النصوص', images: 'الصور', documents: 'المستندات' };
+    const names = { calculators: 'الحاسبات', dates: 'التاريخ والوقت', text: 'النصوص', images: 'الصور', documents: 'المستندات' };
     return names[slug] || 'أدوات';
   }
 

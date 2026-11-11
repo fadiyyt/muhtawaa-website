@@ -30,6 +30,11 @@ def head(title, description, canonical, extra=''):
   <meta property="og:title" content="{escape(title)}">
   <meta property="og:description" content="{escape(description)}">
   <meta property="og:url" content="https://muhtawaa.com{canonical}">
+  <meta property="og:image" content="https://muhtawaa.com/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{escape(title)}">
+  <meta name="twitter:description" content="{escape(description)}">
+  <meta name="twitter:image" content="https://muhtawaa.com/og-image.svg">
   <meta name="theme-color" content="#18a673">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/site.css">
@@ -63,7 +68,7 @@ def card(tool):
 
 
 def category_name(slug):
-    return {'dates': 'التاريخ والوقت', 'text': 'النصوص', 'images': 'الصور', 'documents': 'المستندات'}.get(slug, 'أدوات')
+    return {'calculators': 'الحاسبات', 'dates': 'التاريخ والوقت', 'text': 'النصوص', 'images': 'الصور', 'documents': 'المستندات'}.get(slug, 'أدوات')
 
 
 def faq_schema(tool):
@@ -95,23 +100,41 @@ def index_page(tools):
 <section class="section"><div class="container"><div class="trust-strip"><strong>خصوصيتك أولًا:</strong> أدوات الصور والنصوص مصممة لتعمل داخل المتصفح قدر الإمكان، ولا تحتاج إلى إنشاء حساب.</div></div></section></main>{footer()}<script src="/assets/js/site.js" defer></script></body></html>'''
 
 
-def catalog_page(tools):
-    categories = ''.join(f'<button class="filter-button" data-category="{escape(c["slug"])}">{escape(c["name"])}</button>' for c in [{'slug': 'dates', 'name': 'التاريخ والوقت'}, {'slug': 'text', 'name': 'النصوص'}, {'slug': 'images', 'name': 'الصور'}, {'slug': 'documents', 'name': 'المستندات'}])
+def catalog_page(tools, category_data):
+    categories = ''.join(f'<button class="filter-button" data-category="{escape(c["slug"])}">{escape(c["name"])}</button>' for c in category_data)
     cards = ''.join(card(tool) for tool in tools)
     return f'''{head('كل الأدوات العربية المجانية | محتوى أدوات', 'تصفح جميع أدوات محتوى المجانية للتاريخ والنصوص والصور والمستندات.', '/tools.html')}
 <body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><span>كل الأدوات</span></div><h1>كل الأدوات</h1><p>اختر ما تحتاجه من أدوات عربية مجانية تعمل بسرعة وبدون تسجيل.</p></div></section><section class="section"><div class="container"><div class="catalog-controls"><div class="catalog-search"><span aria-hidden="true">⌕</span><input id="tools-search" type="search" placeholder="ابحث باسم الأداة أو المهمة..." aria-label="ابحث في الأدوات"></div><div class="filter-list"><button class="filter-button active" data-category="all">الكل</button>{categories}</div></div><div class="tool-grid" id="tool-grid">{cards}</div></div></section></main>{footer()}<script src="/assets/js/site.js" defer></script><script>new URLSearchParams(location.search).get('q') && document.addEventListener('DOMContentLoaded',()=>{{const q=new URLSearchParams(location.search).get('q');const input=document.querySelector('#tools-search');if(input){{input.value=q;input.dispatchEvent(new Event('input'));}}}});</script></body></html>'''
 
 
+def category_page(category, tools):
+    category_tools = [tool for tool in tools if tool['category'] == category['slug']]
+    cards = ''.join(card(tool) for tool in category_tools)
+    title = f"أدوات {category['name']} المجانية | محتوى أدوات"
+    description = f"تصفح أدوات {category['name']} المجانية من محتوى، مع صفحات سريعة وواضحة باللغة العربية."
+    schema = {'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': title, 'url': f"https://muhtawaa.com/categories/{category['slug']}.html", 'inLanguage': 'ar'}
+    extra = f'<script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>'
+    return f'''{head(title, description, '/categories/' + category['slug'] + '.html', extra)}
+<body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools.html">الأدوات</a><span>/</span><span>{escape(category['name'])}</span></div><h1>أدوات {escape(category['name'])}</h1><p>مجموعة منتقاة من أدوات {escape(category['name'])} المجانية التي تعمل مباشرة من المتصفح.</p></div></section><section class="section"><div class="container"><div class="tool-grid">{cards}</div></div></section></main>{footer()}</body></html>'''
+
+
 def write_site(data):
     tools = data['tools']
+    category_data = data.get('categories', [])
+    (ROOT / 'categories').mkdir(exist_ok=True)
     (ROOT / 'index.html').write_text(index_page(tools), encoding='utf-8')
-    (ROOT / 'tools.html').write_text(catalog_page(tools), encoding='utf-8')
+    (ROOT / 'tools.html').write_text(catalog_page(tools, category_data), encoding='utf-8')
     for tool in tools:
         (ROOT / 'tools' / f"{tool['slug']}.html").write_text(tool_page(tool, tools), encoding='utf-8')
-    urls = ['/', '/tools.html', '/about.html', '/privacy.html', '/contact.html'] + [f"/tools/{tool['slug']}.html" for tool in tools]
+    for category in category_data:
+        category_tools = [tool for tool in tools if tool['category'] == category['slug']]
+        if len(category_tools) >= 2:
+            (ROOT / 'categories' / f"{category['slug']}.html").write_text(category_page(category, tools), encoding='utf-8')
+    category_urls = [f"/categories/{category['slug']}.html" for category in category_data if len([tool for tool in tools if tool['category'] == category['slug']]) >= 2]
+    urls = ['/', '/tools.html', '/about.html', '/privacy.html', '/contact.html'] + category_urls + [f"/tools/{tool['slug']}.html" for tool in tools]
     url_xml = '\n'.join(f'  <url><loc>https://muhtawaa.com{url}</loc><lastmod>{TODAY}</lastmod></url>' for url in urls)
     (ROOT / 'sitemap.xml').write_text(f'''<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{url_xml}\n</urlset>\n''', encoding='utf-8')
-    routes = [{'path': url, 'title': 'الرئيسية' if url == '/' else 'كل الأدوات' if url == '/tools.html' else next((t['name'] for t in tools if url.endswith('/' + t['slug'] + '.html')), url)} for url in urls]
+    routes = [{'path': url, 'title': 'الرئيسية' if url == '/' else 'كل الأدوات' if url == '/tools.html' else next((c['name'] for c in category_data if url == f"/categories/{c['slug']}.html"), next((t['name'] for t in tools if url.endswith('/' + t['slug'] + '.html')), url))} for url in urls]
     (ROOT / 'manus-routes.json').write_text(json.dumps({'routes': routes}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 

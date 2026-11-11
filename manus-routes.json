@@ -21,6 +21,22 @@
       "title": "/contact.html"
     },
     {
+      "path": "/categories/calculators.html",
+      "title": "الحاسبات"
+    },
+    {
+      "path": "/categories/dates.html",
+      "title": "التاريخ والوقت"
+    },
+    {
+      "path": "/categories/text.html",
+      "title": "النصوص"
+    },
+    {
+      "path": "/categories/images.html",
+      "title": "الصور"
+    },
+    {
       "path": "/tools/age-calculator.html",
       "title": "حاسبة العمر"
     },
@@ -59,6 +75,38 @@
     {
       "path": "/tools/invoice-generator.html",
       "title": "إنشاء فاتورة بسيطة"
+    },
+    {
+      "path": "/tools/percentage-calculator.html",
+      "title": "حاسبة النسبة المئوية"
+    },
+    {
+      "path": "/tools/discount-calculator.html",
+      "title": "حاسبة الخصم"
+    },
+    {
+      "path": "/tools/vat-calculator.html",
+      "title": "حاسبة ضريبة القيمة المضافة"
+    },
+    {
+      "path": "/tools/unit-converter.html",
+      "title": "محول الوحدات"
+    },
+    {
+      "path": "/tools/number-to-words.html",
+      "title": "تحويل الأرقام إلى كلمات"
+    },
+    {
+      "path": "/tools/bmi-calculator.html",
+      "title": "حاسبة مؤشر كتلة الجسم BMI"
+    },
+    {
+      "path": "/tools/password-generator.html",
+      "title": "مولد كلمات مرور"
+    },
+    {
+      "path": "/tools/json-formatter.html",
+      "title": "منسق JSON"
     }
   ]
 }

@@ -7,6 +7,7 @@
 ```bash
 python3 scripts/build_pages.py
 python3 scripts/validate_site.py
+node scripts/test_tool_algorithms.js
 python3 -m http.server 8000
 ```
 

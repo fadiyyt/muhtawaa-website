@@ -41,7 +41,7 @@ class LinkParser(HTMLParser):
     def handle_data(self, data):
         if data.strip(): self.titles.append(data.strip())
 
-html_files = [ROOT / 'index.html', ROOT / 'tools.html', ROOT / 'about.html', ROOT / 'privacy.html', ROOT / 'contact.html'] + list((ROOT / 'tools').glob('*.html'))
+html_files = [ROOT / 'index.html', ROOT / 'tools.html', ROOT / 'about.html', ROOT / 'privacy.html', ROOT / 'contact.html'] + list((ROOT / 'tools').glob('*.html')) + list((ROOT / 'categories').glob('*.html'))
 for path in html_files:
     if not path.exists():
         fail(f'Missing page: {path.relative_to(ROOT)}')
@@ -60,7 +60,8 @@ for path in html_files:
 try:
     routes = json.loads((ROOT / 'manus-routes.json').read_text(encoding='utf-8'))
     route_paths = {item['path'] for item in routes['routes']}
-    expected = {'/', '/tools.html', '/about.html', '/privacy.html', '/contact.html'} | {f'/tools/{slug}.html' for slug in slugs}
+    category_paths = {f'/categories/{category["slug"]}.html' for category in data.get('categories', []) if sum(1 for tool in data.get('tools', []) if tool.get('category') == category.get('slug')) >= 2}
+    expected = {'/', '/tools.html', '/about.html', '/privacy.html', '/contact.html'} | category_paths | {f'/tools/{slug}.html' for slug in slugs}
     if route_paths != expected: fail('manus-routes.json does not match the expected page set')
 except Exception as exc:
     fail(f'manus-routes.json is invalid: {exc}')
