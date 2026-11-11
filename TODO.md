@@ -37,7 +37,7 @@
 ## المرحلة الثانية — النمو والقياس
 
 ### القياس والاكتشاف
-- [ ] ربط Google Search Console وإرسال `https://muhtawaa.com/sitemap.xml`.
+- [x] ربط Google Search Console وإرسال `https://muhtawaa.com/sitemap.xml`؛ أبلغ Search Console عن نجاح الإجراء واكتشاف 27 صفحة في 11 نوفمبر 2026.
 - [ ] تفعيل قياس زيارات يحترم الخصوصية، مثل Cloudflare Web Analytics أو بديل واضح.
 - [ ] تسجيل خط أساس للظهور والنقرات والصفحات المكتشفة قبل دفعة الأدوات الثانية.
 
