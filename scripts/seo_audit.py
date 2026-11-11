@@ -98,7 +98,7 @@ def main():
     tool_results = [audit_tool(tool) for tool in TOOLS]
     base_paths = ['/', '/tools', '/about', '/privacy', '/contact']
     category_paths = [f"/categories/{category['slug']}" for category in DATA.get('categories', []) if sum(t['category'] == category['slug'] for t in TOOLS) >= 2]
-    all_paths = base_paths + category_paths + [f"/tools/{tool['slug']}.html" for tool in TOOLS]
+    all_paths = base_paths + category_paths + [f"/tools/{tool['slug']}" for tool in TOOLS]
     links, sources = audit_links(all_paths)
     response, robots_ms = get('/robots.txt')
     robots = response.text

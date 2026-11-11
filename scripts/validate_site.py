@@ -3,6 +3,7 @@
 from pathlib import Path
 from html.parser import HTMLParser
 import json
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,12 +33,22 @@ class LinkParser(HTMLParser):
         self.links = []
         self.canonicals = []
         self.titles = []
+        self.meta = {}
+        self.jsonld = []
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'a' and attrs.get('href'):
             self.links.append(attrs['href'])
         if tag == 'link' and attrs.get('rel') == 'canonical':
             self.canonicals.append(attrs.get('href', ''))
+        if tag == 'meta' and attrs.get('name'):
+            self.meta[attrs['name']] = attrs.get('content', '')
+        if tag == 'meta' and attrs.get('property'):
+            self.meta[attrs['property']] = attrs.get('content', '')
+        if tag == 'script' and attrs.get('type') == 'application/ld+json':
+            self.jsonld.append('')
+    def handle_endtag(self, tag):
+        pass
     def handle_data(self, data):
         if data.strip(): self.titles.append(data.strip())
 
@@ -47,8 +58,27 @@ for path in html_files:
         fail(f'Missing page: {path.relative_to(ROOT)}')
         continue
     parser = LinkParser()
-    parser.feed(path.read_text(encoding='utf-8'))
+    source = path.read_text(encoding='utf-8')
+    parser.feed(source)
     if not parser.canonicals: fail(f'No canonical: {path.relative_to(ROOT)}')
+    if len(parser.canonicals) != 1: fail(f'Multiple canonicals: {path.relative_to(ROOT)}')
+    expected_path = '/' if path.name == 'index.html' else '/' + str(path.relative_to(ROOT)).removesuffix('.html')
+    expected_canonical = f'https://muhtawaa.com{expected_path}'
+    if parser.canonicals and parser.canonicals[0] != expected_canonical:
+        fail(f'Wrong canonical in {path.relative_to(ROOT)}: {parser.canonicals[0]}')
+    if not parser.titles: fail(f'Missing title: {path.relative_to(ROOT)}')
+    if not parser.meta.get('description'): fail(f'Missing description: {path.relative_to(ROOT)}')
+    for key in ('og:title', 'og:description', 'og:url', 'og:image', 'twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'):
+        if not parser.meta.get(key): fail(f'Missing {key} in {path.relative_to(ROOT)}')
+    if source.count('<h1') != 1: fail(f'Expected one H1: {path.relative_to(ROOT)}')
+    for raw in re.findall(r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', source, flags=re.S):
+        try:
+            payload = json.loads(raw)
+            if payload.get('@context') != 'https://schema.org': fail(f'Invalid Schema context: {path.relative_to(ROOT)}')
+            types = {item.get('@type') for item in payload.get('@graph', [payload]) if isinstance(item, dict)}
+            if not types: fail(f'Empty Schema graph: {path.relative_to(ROOT)}')
+        except json.JSONDecodeError as exc:
+            fail(f'Invalid JSON-LD in {path.relative_to(ROOT)}: {exc}')
     for link in parser.links:
         if link.startswith('/') and not link.startswith('//') and '#' not in link:
             target = link.split('?', 1)[0].lstrip('/') or 'index.html'
@@ -68,6 +98,10 @@ except Exception as exc:
     fail(f'manus-routes.json is invalid: {exc}')
 
 sitemap = (ROOT / 'sitemap.xml').read_text(encoding='utf-8') if (ROOT / 'sitemap.xml').exists() else ''
+if not re.search(r'<lastmod>\d{4}-\d{2}-\d{2}</lastmod>', sitemap):
+    fail('sitemap.xml has no valid lastmod dates')
+if '<lastmod>None</lastmod>' in sitemap:
+    fail('sitemap.xml contains empty lastmod values')
 for path in {'https://muhtawaa.com/', 'https://muhtawaa.com/tools'} | {f'https://muhtawaa.com/tools/{slug}' for slug in slugs}:
     if path not in sitemap: fail(f'Missing sitemap URL: {path}')
 
