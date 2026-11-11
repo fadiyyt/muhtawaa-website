@@ -88,6 +88,11 @@ img { max-width: 100%; }
 .step p { margin: 0; color: var(--ink-soft); font-size: .92rem; }
 .trust-strip { padding: 18px 22px; border-radius: 17px; color: var(--ink); background: var(--brand-pale); }
 .trust-strip strong { color: var(--brand-dark); }
+.value-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.value-card { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: 0 8px 24px rgba(16,42,67,.04); }
+.value-icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 13px; border-radius: 12px; color: var(--brand-dark); background: rgba(24,166,115,.12); font-size: 1.2rem; }
+.value-card h3 { margin: 0 0 7px; font-size: 1rem; }
+.value-card p { margin: 0; color: var(--ink-soft); font-size: .88rem; line-height: 1.8; }
 
 .page-hero { padding: 54px 0 32px; border-bottom: 1px solid var(--line); background: linear-gradient(135deg, rgba(24,166,115,.09), transparent); }
 .page-hero h1 { margin: 9px 0; font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.05em; line-height: 1.2; }
@@ -178,7 +183,7 @@ details p { margin-bottom: 0; color: var(--ink-soft); font-size: .9rem; }
   .section { padding: 54px 0; }
   .section-head { display: block; }
   .section-head .button-secondary { margin-top: 14px; }
-  .tool-grid, .quick-tools, .form-grid, .footer-grid, .example-grid { grid-template-columns: 1fr; }
+  .tool-grid, .quick-tools, .form-grid, .footer-grid, .example-grid, .value-grid { grid-template-columns: 1fr; }
   .tool-card { min-height: auto; }
   .page-hero { padding-top: 38px; }
   .invoice-head { display: block; }
