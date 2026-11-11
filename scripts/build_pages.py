@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261111-5'
+ASSET_VERSION = '20261111-6'
 SITE_URL = 'https://muhtawaa.com'
 
 
