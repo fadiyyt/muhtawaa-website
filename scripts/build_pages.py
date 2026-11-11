@@ -69,7 +69,6 @@ def head(title, description, canonical, extra=''):
   <meta property="og:image:alt" content="محتوى أدوات — أدوات عربية مجانية">
   <meta property="og:image:type" content="image/svg+xml">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@muhtawaa_com">
   <meta name="twitter:title" content="{escape(title)}">
   <meta name="twitter:description" content="{escape(description)}">
   <meta name="twitter:image" content="https://muhtawaa.com/og-image.svg">
