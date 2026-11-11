@@ -8,6 +8,7 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
 TODAY = date.today().isoformat()
+ASSET_VERSION = '20261111-2'
 
 
 def load_data():
@@ -37,7 +38,7 @@ def head(title, description, canonical, extra=''):
   <meta name="twitter:image" content="https://muhtawaa.com/og-image.svg">
   <meta name="theme-color" content="#18a673">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/site.css?v={ASSET_VERSION}">
   {extra}
 </head>'''
 
@@ -86,7 +87,7 @@ def tool_page(tool, tools):
     return f'''{head(tool['seoTitle'], tool['seoDescription'], '/tools/' + tool['slug'] + '.html', extra)}
 <body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools.html">الأدوات</a><span>/</span><span>{escape(tool['name'])}</span></div><h1>{escape(tool['name'])}</h1><p>{escape(tool['intro'])}</p></div></section>
 <section class="section"><div class="container tool-layout"><div><div class="tool-panel"><div class="tool-app" data-tool="{escape(tool['slug'])}"><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript.</noscript></div></div><article class="article-copy"><h2>حول {escape(tool['name'])}</h2><p>{escape(tool['intro'])} صممت هذه الأداة لتكون مباشرة وسهلة الاستخدام من الهاتف والكمبيوتر، ولا تحتاج إلى تسجيل حساب.</p><h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></div><aside class="info-card"><h2>لماذا تستخدمها؟</h2><ul><li>مجانية وبدون تسجيل.</li><li>واجهة عربية واضحة.</li><li>نتيجة مباشرة من متصفحك.</li><li>تصميم مناسب للجوال.</li></ul></aside></div></section>
-<section class="section" style="padding-top:0"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}<script src="/assets/js/tool-app.js" defer></script></body></html>'''
+<section class="section" style="padding-top:0"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}<script src="/assets/js/tool-app.js?v={ASSET_VERSION}" defer></script></body></html>'''
 
 
 def index_page(tools):
@@ -97,14 +98,14 @@ def index_page(tools):
 <body>{header('home')}<main id="main"><section class="hero"><div class="container hero-grid"><div><span class="eyebrow">أدوات عملية باللغة العربية</span><h1>أنجز مهمتك، <strong>بدون تعقيد.</strong></h1><p>مجموعة أدوات مجانية وسريعة للتاريخ والنصوص والصور والمستندات. اختر الأداة، استخدمها مباشرة، واحتفظ بنتيجتك.</p><div class="hero-actions"><a class="button-primary" href="/tools.html">تصفح كل الأدوات</a><a class="button-secondary" href="#how-it-works">كيف تعمل؟</a></div></div><div class="hero-card"><div class="hero-card-label"><span><span class="live-dot"></span>متاح الآن</span><span>مجاني دائمًا</span></div><div class="search-box"><span aria-hidden="true">⌕</span><input id="home-search" type="search" placeholder="ابحث عن أداة..." aria-label="ابحث عن أداة"></div><div class="quick-tools" id="quick-tools">{quick}</div><p class="result-muted">ملفاتك ونصوصك تبقى في جهازك في الأدوات التي تدعم المعالجة المحلية.</p></div></div></section>
 <section class="section"><div class="container"><div class="section-head"><div><div class="section-kicker">ابدأ من هنا</div><h2>الأدوات الأكثر استخدامًا</h2></div><a class="button-secondary" href="/tools.html">عرض الكل ←</a></div><div class="tool-grid">{featured}</div></div></section>
 <section class="section" id="how-it-works" style="background:#f1f7f5"><div class="container"><div class="section-head"><div><div class="section-kicker">بسيطة من البداية</div><h2>ثلاث خطوات وتنتهي</h2></div><p class="section-intro">لا حسابات ولا إعدادات طويلة. صممنا الأدوات لتصل إلى النتيجة بأقل عدد من النقرات.</p></div><div class="steps"><div class="step"><div class="step-number">01</div><h3>اختر الأداة</h3><p>ابحث باسم المهمة أو تصفح التصنيفات للوصول إلى الأداة المناسبة.</p></div><div class="step"><div class="step-number">02</div><h3>أدخل بياناتك</h3><p>استخدم نموذجًا واضحًا ومباشرًا مع رسائل عربية عند وجود أي خطأ.</p></div><div class="step"><div class="step-number">03</div><h3>خذ النتيجة</h3><p>انسخ النتيجة أو نزّل الملف أو اطبعه حسب نوع الأداة.</p></div></div></div></section>
-<section class="section"><div class="container"><div class="trust-strip"><strong>خصوصيتك أولًا:</strong> أدوات الصور والنصوص مصممة لتعمل داخل المتصفح قدر الإمكان، ولا تحتاج إلى إنشاء حساب.</div></div></section></main>{footer()}<script src="/assets/js/site.js" defer></script></body></html>'''
+<section class="section"><div class="container"><div class="trust-strip"><strong>خصوصيتك أولًا:</strong> أدوات الصور والنصوص مصممة لتعمل داخل المتصفح قدر الإمكان، ولا تحتاج إلى إنشاء حساب.</div></div></section></main>{footer()}<script src="/assets/js/site.js?v={ASSET_VERSION}" defer></script></body></html>'''
 
 
 def catalog_page(tools, category_data):
     categories = ''.join(f'<button class="filter-button" data-category="{escape(c["slug"])}">{escape(c["name"])}</button>' for c in category_data)
     cards = ''.join(card(tool) for tool in tools)
     return f'''{head('كل الأدوات العربية المجانية | محتوى أدوات', 'تصفح جميع أدوات محتوى المجانية للتاريخ والنصوص والصور والمستندات.', '/tools.html')}
-<body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><span>كل الأدوات</span></div><h1>كل الأدوات</h1><p>اختر ما تحتاجه من أدوات عربية مجانية تعمل بسرعة وبدون تسجيل.</p></div></section><section class="section"><div class="container"><div class="catalog-controls"><div class="catalog-search"><span aria-hidden="true">⌕</span><input id="tools-search" type="search" placeholder="ابحث باسم الأداة أو المهمة..." aria-label="ابحث في الأدوات"></div><div class="filter-list"><button class="filter-button active" data-category="all">الكل</button>{categories}</div></div><div class="tool-grid" id="tool-grid">{cards}</div></div></section></main>{footer()}<script src="/assets/js/site.js" defer></script><script>new URLSearchParams(location.search).get('q') && document.addEventListener('DOMContentLoaded',()=>{{const q=new URLSearchParams(location.search).get('q');const input=document.querySelector('#tools-search');if(input){{input.value=q;input.dispatchEvent(new Event('input'));}}}});</script></body></html>'''
+<body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><span>كل الأدوات</span></div><h1>كل الأدوات</h1><p>اختر ما تحتاجه من أدوات عربية مجانية تعمل بسرعة وبدون تسجيل.</p></div></section><section class="section"><div class="container"><div class="catalog-controls"><div class="catalog-search"><span aria-hidden="true">⌕</span><input id="tools-search" type="search" placeholder="ابحث باسم الأداة أو المهمة..." aria-label="ابحث في الأدوات"></div><div class="filter-list"><button class="filter-button active" data-category="all">الكل</button>{categories}</div></div><div class="tool-grid" id="tool-grid">{cards}</div></div></section></main>{footer()}<script src="/assets/js/site.js?v={ASSET_VERSION}" defer></script><script>new URLSearchParams(location.search).get('q') && document.addEventListener('DOMContentLoaded',()=>{{const q=new URLSearchParams(location.search).get('q');const input=document.querySelector('#tools-search');if(input){{input.value=q;input.dispatchEvent(new Event('input'));}}}});</script></body></html>'''
 
 
 def category_page(category, tools):
