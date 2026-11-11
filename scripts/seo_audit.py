@@ -80,6 +80,9 @@ def audit_links(paths):
             parsed = urlparse(target)
             if parsed.netloc != urlparse(BASE).netloc:
                 continue
+            if parsed.path.startswith('/cdn-cgi/'):
+                # Cloudflare email obfuscation endpoint, not an authored site route.
+                continue
             normalized = parsed._replace(query='', fragment='').geturl()
             sources[normalized].append(path)
     for url in sorted(sources):
