@@ -9,7 +9,8 @@
   const result = (id = 'tool-result') => `<div id="${id}" class="result-box" aria-live="polite"></div>`;
   const showResult = (box, html, isError = false) => { box.innerHTML = html; box.classList.add('visible'); box.classList.toggle('error-message', isError); };
   const error = message => `<span class="error-message">${esc(message)}</span>`;
-  const today = () => new Date().toISOString().slice(0, 10);
+  function formatLocalDate(date) { const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, '0'); const day = String(date.getDate()).padStart(2, '0'); return `${year}-${month}-${day}`; }
+  const today = () => formatLocalDate(new Date());
   const numberValue = selector => Number($(selector)?.value);
   const validNumber = value => Number.isFinite(value);
   const fileToDataURL = file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
@@ -60,12 +61,119 @@
     if (tool === 'json-formatter') bindJson();
   }
 
-  function bindAge() { $('#age-form').addEventListener('submit', event => { event.preventDefault(); const birth = new Date(`${$('#birth-date').value}T00:00:00`); const end = new Date(`${$('#age-on').value}T00:00:00`); const box = $('#tool-result'); if (!$('#birth-date').value || !$('#age-on').value || birth > end) return showResult(box, error('اختر تاريخين صحيحين، ويجب أن يكون تاريخ الميلاد قبل تاريخ الحساب.'), true); let years = end.getFullYear() - birth.getFullYear(); let months = end.getMonth() - birth.getMonth(); let days = end.getDate() - birth.getDate(); if (days < 0) { months -= 1; days += new Date(end.getFullYear(), end.getMonth(), 0).getDate(); } if (months < 0) { years -= 1; months += 12; } showResult(box, `<div class="result-big">${years} سنة، ${months} شهر، ${days} يوم</div><div class="result-muted">العمر التقريبي حتى ${esc($('#age-on').value)}</div>`); }); }
+  function utcDate(year, month, day) { const date = new Date(0); date.setUTCHours(0, 0, 0, 0); date.setUTCFullYear(year, month, day); return date; }
+  function daysInMonth(year, month) { return utcDate(year, month + 1, 0).getUTCDate(); }
+  function parseIsoDate(value) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return null;
+    const year = Number(match[1]), month = Number(match[2]) - 1, day = Number(match[3]);
+    const date = utcDate(year, month, day);
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month && date.getUTCDate() === day ? date : null;
+  }
+  function addMonthsClamped(date, months) {
+    const total = date.getUTCFullYear() * 12 + date.getUTCMonth() + months;
+    const year = Math.floor(total / 12), month = total - year * 12;
+    return utcDate(year, month, Math.min(date.getUTCDate(), daysInMonth(year, month)));
+  }
+  function calculateAgeParts(birthValue, endValue) {
+    const birth = parseIsoDate(birthValue), end = parseIsoDate(endValue);
+    if (!birth || !end || birth > end) return null;
+    const birthYear = birth.getUTCFullYear(), birthMonth = birth.getUTCMonth(), birthDay = birth.getUTCDate();
+    let years = end.getUTCFullYear() - birthYear;
+    const anniversary = utcDate(end.getUTCFullYear(), birthMonth, Math.min(birthDay, daysInMonth(end.getUTCFullYear(), birthMonth)));
+    if (end < anniversary) years -= 1;
+    const lastBirthdayYear = birthYear + years;
+    const lastBirthday = utcDate(lastBirthdayYear, birthMonth, Math.min(birthDay, daysInMonth(lastBirthdayYear, birthMonth)));
+    let months = (end.getUTCFullYear() - lastBirthday.getUTCFullYear()) * 12 + end.getUTCMonth() - lastBirthday.getUTCMonth();
+    let monthAnchor = addMonthsClamped(lastBirthday, months);
+    if (monthAnchor > end) months -= 1;
+    monthAnchor = addMonthsClamped(lastBirthday, months);
+    const days = Math.round((end - monthAnchor) / 86400000);
+    return { years, months, days };
+  }
+  function bindAge() {
+    const form = $('#age-form'), box = $('#tool-result');
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const birth = $('#birth-date').value, end = $('#age-on').value;
+      const parts = calculateAgeParts(birth, end);
+      if (!parts) return showResult(box, error('اختر تاريخين صحيحين، ويجب أن يكون تاريخ الميلاد قبل تاريخ الحساب.'), true);
+      showResult(box, `<div class="result-big">${parts.years} سنة، ${parts.months} شهر، ${parts.days} يوم</div><div class="result-muted">العمر التقريبي حتى ${esc(end)}</div>`);
+    });
+    form.addEventListener('reset', () => setTimeout(() => { box.textContent = ''; box.classList.remove('visible', 'error-message'); }, 0));
+  }
   function bindDateDiff() { $('#diff-form').addEventListener('submit', event => { event.preventDefault(); const start = new Date(`${$('#date-start').value}T00:00:00`); const end = new Date(`${$('#date-end').value}T00:00:00`); const box = $('#tool-result'); if (!$('#date-start').value || !$('#date-end').value || start > end) return showResult(box, error('اختر تاريخ البداية قبل تاريخ النهاية.'), true); const days = Math.round((end - start) / 86400000); showResult(box, `<div class="result-big">${days.toLocaleString('ar-SA')} يوم</div><div class="result-muted">أي ما يعادل ${Math.floor(days / 7).toLocaleString('ar-SA')} أسبوعًا و${days % 7} يوم.</div>`); }); }
   function bindHijri() { $('#hijri-form').addEventListener('submit', event => { event.preventDefault(); const value = $('#gregorian-date').value; const box = $('#tool-result'); if (!value) return showResult(box, error('اختر تاريخًا صحيحًا.'), true); try { const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); showResult(box, `<div class="result-big">${esc(formatter.format(new Date(`${value}T12:00:00`)))}</div><div class="result-muted">التاريخ الميلادي: ${esc(value)}</div>`); } catch { showResult(box, error('المتصفح لا يدعم تقويم أم القرى. جرّب متصفحًا حديثًا.'), true); } }); }
   function bindWord() { const input = $('#word-text'); const stats = $('#word-stats'); const update = () => { const text = input.value; const words = text.trim() ? text.trim().split(/\s+/u).length : 0; const lines = text ? text.split(/\r?\n/u).length : 0; stats.innerHTML = `<div class="tool-note"><strong>${words.toLocaleString('ar-SA')}</strong><br>كلمة</div><div class="tool-note"><strong>${text.length.toLocaleString('ar-SA')}</strong><br>حرف</div><div class="tool-note"><strong>${lines.toLocaleString('ar-SA')}</strong><br>سطر</div><div class="tool-note"><strong>${text.replace(/\s/g, '').length.toLocaleString('ar-SA')}</strong><br>حرف بدون مسافات</div>`; }; input.addEventListener('input', update); $('.button-quiet').addEventListener('click', () => copyText(input.value)); update(); }
   function bindQr() { const output = $('#qr-output'); const text = $('#qr-text'); const actions = $$('.action-row button'); actions[0].addEventListener('click', () => { if (!text.value.trim()) return output.innerHTML = error('اكتب نصًا أو رابطًا أولًا.'); if (!window.QRCode) return output.innerHTML = error('مكتبة QR لم تكتمل، أعد تحميل الصفحة.'); output.innerHTML = ''; new QRCode(output, { text: text.value.trim(), width: 210, height: 210, colorDark: '#102a43', colorLight: '#ffffff' }); }); actions[1].addEventListener('click', () => { const canvas = output.querySelector('canvas'); if (canvas) canvas.toBlob(blob => downloadBlob(blob, 'muhtawaa-qr.png')); }); }
-  function bindImage(kind) { const input = $('#image-file'); const preview = $('#image-preview'); const options = $('#image-options'); const actions = $('#image-actions'); let image; let fileName = 'muhtawaa-image'; input.addEventListener('change', async () => { const file = input.files?.[0]; if (!file || !file.type.startsWith('image/')) { preview.innerHTML = error('اختر ملف صورة صالحًا.'); return; } fileName = file.name.replace(/\.[^.]+$/, '') || fileName; image = await loadImage(await fileToDataURL(file)); preview.innerHTML = `<img src="${esc(image.src)}" alt="معاينة الصورة">`; if (kind === 'image-compressor') options.innerHTML = `<div class="form-field"><label for="quality">الجودة: <span id="quality-value">80</span>%</label><div class="range-row"><input id="quality" type="range" min="20" max="100" value="80"><span class="result-muted">حجم أقل ←</span></div></div>`; if (kind === 'image-resizer') options.innerHTML = `<div class="form-grid"><div class="form-field"><label for="resize-width">العرض بالبكسل</label><input id="resize-width" type="number" min="1" value="${image.naturalWidth}"></div><div class="form-field"><label for="resize-height">الارتفاع بالبكسل</label><input id="resize-height" type="number" min="1" value="${image.naturalHeight}"></div></div><label class="check-row"><input id="keep-ratio" type="checkbox" checked> الحفاظ على النسبة</label>`; if (kind === 'image-converter') options.innerHTML = `<div class="form-field"><label for="image-format">الصيغة الناتجة</label><select id="image-format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>`; actions.innerHTML = button('معالجة وتنزيل', 'button-primary'); actions.querySelector('button').addEventListener('click', processImage); $('#quality')?.addEventListener('input', event => { $('#quality-value').textContent = event.target.value; }); $('#resize-width')?.addEventListener('input', event => { if ($('#keep-ratio').checked) $('#resize-height').value = Math.round(Number(event.target.value) * image.naturalHeight / image.naturalWidth); }); }); function processImage() { if (!image) return; let width = image.naturalWidth, height = image.naturalHeight, type = 'image/jpeg', quality = 0.8; if (kind === 'image-compressor') quality = Number($('#quality').value) / 100; if (kind === 'image-resizer') { width = Math.max(1, Number($('#resize-width').value)); height = Math.max(1, Number($('#resize-height').value)); } if (kind === 'image-converter') type = $('#image-format').value; const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(image, 0, 0, width, height); canvas.toBlob(blob => { if (!blob) return; const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg'; downloadBlob(blob, `${fileName}-muhtawaa.${ext}`); }, type, quality); } }
+  function bindImage(kind) {
+    const input = $('#image-file'), preview = $('#image-preview'), options = $('#image-options'), actions = $('#image-actions');
+    let image, fileName = 'muhtawaa-image';
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0];
+      image = null;
+      options.replaceChildren();
+      actions.replaceChildren();
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { preview.innerHTML = error('اختر ملف صورة صالحًا.'); return; }
+      fileName = file.name.replace(/\.[^.]+$/, '') || fileName;
+      try {
+        image = await loadImage(await fileToDataURL(file));
+      } catch {
+        image = null;
+        preview.innerHTML = error('تعذر تحميل الصورة. جرّب ملف صورة آخر بصيغة مدعومة.');
+        return;
+      }
+      preview.innerHTML = `<img src="${esc(image.src)}" alt="معاينة الصورة">`;
+      if (kind === 'image-compressor') options.innerHTML = `<div class="form-field"><label for="quality">الجودة: <span id="quality-value">80</span>%</label><div class="range-row"><input id="quality" type="range" min="20" max="100" value="80"><span class="result-muted">حجم أقل ←</span></div></div>`;
+      if (kind === 'image-resizer') options.innerHTML = `<div class="form-grid"><div class="form-field"><label for="resize-width">العرض بالبكسل</label><input id="resize-width" type="number" min="1" value="${image.naturalWidth}"></div><div class="form-field"><label for="resize-height">الارتفاع بالبكسل</label><input id="resize-height" type="number" min="1" value="${image.naturalHeight}"></div></div><label class="check-row"><input id="keep-ratio" type="checkbox" checked> الحفاظ على النسبة</label>`;
+      if (kind === 'image-converter') options.innerHTML = `<div class="form-field"><label for="image-format">الصيغة الناتجة</label><select id="image-format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>`;
+      actions.innerHTML = button('معالجة وتنزيل', 'button-primary');
+      actions.querySelector('button').addEventListener('click', processImage);
+      $('#quality')?.addEventListener('input', event => { $('#quality-value').textContent = event.target.value; });
+      const syncRatio = changed => {
+        if (!$('#keep-ratio')?.checked) return;
+        const width = Number($('#resize-width').value), height = Number($('#resize-height').value);
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width < 1 || height < 1) return;
+        if (changed === 'width') $('#resize-height').value = Math.max(1, Math.round(width * image.naturalHeight / image.naturalWidth));
+        else $('#resize-width').value = Math.max(1, Math.round(height * image.naturalWidth / image.naturalHeight));
+      };
+      $('#resize-width')?.addEventListener('input', () => syncRatio('width'));
+      $('#resize-height')?.addEventListener('input', () => syncRatio('height'));
+    });
+    function processImage() {
+      if (!image) return;
+      let width = image.naturalWidth, height = image.naturalHeight, type = 'image/jpeg', quality = 0.8;
+      if (kind === 'image-compressor') quality = Number($('#quality').value) / 100;
+      if (kind === 'image-resizer') {
+        width = Number($('#resize-width').value);
+        height = Number($('#resize-height').value);
+        if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 10000 || height > 10000) {
+          preview.insertAdjacentHTML('beforeend', error('أدخل أبعادًا صحيحة بين 1 و10000 بكسل.'));
+          return;
+        }
+      }
+      if (kind === 'image-converter') type = $('#image-format').value;
+      if (width * height > 40000000) { preview.insertAdjacentHTML('beforeend', error('أبعاد الصورة كبيرة جدًا للمعالجة في المتصفح.'));
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const context = canvas.getContext('2d');
+      if (!context) { preview.insertAdjacentHTML('beforeend', error('تعذر بدء معالجة الصورة في هذا المتصفح.')); return; }
+      if (type === 'image/jpeg') { context.fillStyle = '#ffffff'; context.fillRect(0, 0, width, height); }
+      context.drawImage(image, 0, 0, width, height);
+      try {
+        canvas.toBlob(blob => {
+          if (!blob) { preview.insertAdjacentHTML('beforeend', error('تعذر إنشاء الملف الناتج. جرّب إعدادات أخرى.')); return; }
+          const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+          downloadBlob(blob, `${fileName}-muhtawaa.${ext}`);
+        }, type, quality);
+      } catch {
+        preview.insertAdjacentHTML('beforeend', error('حدث خطأ أثناء معالجة الصورة. جرّب صورة أخرى.'));
+      }
+    }
+  }
   function bindCleaner() { const original = $('#dirty-text'); const cleaned = $('#clean-text'); $('.button-primary').addEventListener('click', () => { let value = original.value; if ($('#trim-spaces').checked) value = value.split(/\r?\n/u).map(line => line.replace(/[ \t]+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n'); if ($('#remove-duplicates').checked) { const seen = new Set(); value = value.split(/\r?\n/u).filter(line => { if (!line || seen.has(line)) return false; seen.add(line); return true; }).join('\n'); } cleaned.value = value; }); $('.button-quiet')?.addEventListener('click', () => copyText(cleaned.value)); }
   function bindInvoice() { const items = $('#invoice-items'); const addItem = () => { const row = document.createElement('div'); row.className = 'form-grid invoice-item'; row.innerHTML = `<div class="form-field"><label>البند</label><input class="item-name" placeholder="اسم المنتج أو الخدمة"></div><div class="form-field"><label>الكمية × السعر</label><div class="form-grid"><input class="item-qty" type="number" min="0" value="1"><input class="item-price" type="number" min="0" step="0.01" value="0"></div></div>`; items.appendChild(row); }; addItem(); const refresh = () => { const business = esc($('#invoice-business').value || 'اسم النشاط'); const client = esc($('#invoice-client').value || '—'); const number = esc($('#invoice-number').value || '—'); const date = esc($('#invoice-date').value || '—'); let total = 0; const rows = $$('.invoice-item', items).map(row => { const name = esc($('.item-name', row).value || 'بند'); const qty = Number($('.item-qty', row).value) || 0; const price = Number($('.item-price', row).value) || 0; total += qty * price; return `<tr><td>${name}</td><td>${qty}</td><td>${price.toFixed(2)}</td><td>${(qty * price).toFixed(2)}</td></tr>`; }).join(''); $('#invoice-preview').innerHTML = `<div class="invoice-head"><div><strong>${business}</strong><br><span class="result-muted">العميل: ${client}</span></div><div><strong>فاتورة</strong><br><span class="result-muted">${number} · ${date}</span></div></div><table class="invoice-table"><thead><tr><th>البند</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table><div class="invoice-total">الإجمالي: ${total.toFixed(2)}</div>`; }; const buttons = $$('.action-row button'); buttons[0].addEventListener('click', addItem); buttons[1].addEventListener('click', refresh); buttons[2].addEventListener('click', () => { refresh(); window.print(); }); refresh(); }
 
@@ -81,7 +189,7 @@
   const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
   const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
   function threeWords(value) { const parts = []; const hundred = Math.floor(value / 100); const rest = value % 100; if (hundred) parts.push(hundreds[hundred]); if (rest) { if (rest < 10) parts.push(ones[rest]); else if (rest < 20) parts.push(teens[rest - 10]); else { const unit = rest % 10; const ten = Math.floor(rest / 10); parts.push(unit ? `${ones[unit]} و${tens[ten]}` : tens[ten]); } } return parts.join(' و'); }
-  function numberWords(value) { if (value === 0) return 'صفر'; if (value > 999999999) return ''; const groups = [[1000000, 'مليون', 'ملايين'], [1000, 'ألف', 'آلاف']]; let rest = value; const parts = []; for (const [factor, singular, plural] of groups) { const count = Math.floor(rest / factor); if (count) parts.push(count === 1 ? singular : count === 2 ? `اثنان ${singular}` : `${threeWords(count)} ${count < 11 ? plural : singular}`); rest %= factor; } if (rest) parts.push(threeWords(rest)); return parts.join(' و'); }
+  function numberWords(value) { if (value === 0) return 'صفر'; if (value > 999999999) return ''; const groups = [[1000000, 'مليون', 'مليونان', 'ملايين'], [1000, 'ألف', 'ألفان', 'آلاف']]; let rest = value; const parts = []; for (const [factor, singular, dual, plural] of groups) { const count = Math.floor(rest / factor); if (count) parts.push(count === 1 ? singular : count === 2 ? dual : `${threeWords(count)} ${count < 11 ? plural : singular}`); rest %= factor; } if (rest) parts.push(threeWords(rest)); return parts.join(' و'); }
   function bindNumberWords() { const form = $('#number-words-form'); const box = $('#tool-result'); form.addEventListener('submit', event => { event.preventDefault(); const value = Number($('#number-input').value); if (!Number.isInteger(value) || value < 0 || value > 999999999) return showResult(box, error('أدخل عددًا صحيحًا بين صفر و999,999,999.'), true); showResult(box, `<div class="result-big">${esc(numberWords(value))}</div>`); }); $('.button-quiet').addEventListener('click', () => copyText(box.textContent)); }
   function bindBmi() { $('#bmi-form').addEventListener('submit', event => { event.preventDefault(); const height = numberValue('#bmi-height') / 100; const weight = numberValue('#bmi-weight'); const box = $('#tool-result'); if (!validNumber(height) || !validNumber(weight) || height <= 0 || weight <= 0) return showResult(box, error('أدخل الطول والوزن بشكل صحيح.'), true); const bmi = weight / (height * height); const label = bmi < 18.5 ? 'نقص في الوزن' : bmi < 25 ? 'ضمن النطاق المعتاد' : bmi < 30 ? 'زيادة في الوزن' : 'سمنة'; showResult(box, `<div class="result-big">${bmi.toFixed(1)}</div><div class="result-muted">التصنيف التقريبي: ${label}. هذه النتيجة إرشادية وليست تشخيصًا طبيًا.</div>`); }); }
   function bindPassword() { const length = $('#password-length'); const output = $('#password-output'); $('#password-length-value').textContent = length.value; length.addEventListener('input', () => { $('#password-length-value').textContent = length.value; }); const generate = () => { let chars = 'abcdefghijklmnopqrstuvwxyz'; if ($('#password-upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if ($('#password-number').checked) chars += '0123456789'; if ($('#password-symbol').checked) chars += '!@#$%^&*()-_=+'; const values = new Uint32Array(Number(length.value)); crypto.getRandomValues(values); output.value = [...values].map(value => chars[value % chars.length]).join(''); }; $('.button-primary').addEventListener('click', generate); $('.button-quiet').addEventListener('click', () => copyText(output.value)); generate(); }
