@@ -21,9 +21,14 @@ except Exception as exc:
 
 slugs = [tool.get('slug') for tool in data.get('tools', [])]
 if len(slugs) != len(set(slugs)): fail('Duplicate tool slugs found')
+summaries = [tool.get('summary', '').strip() for tool in data.get('tools', [])]
+if len(summaries) != len(set(summaries)): fail('Duplicate tool summaries found')
 for tool in data.get('tools', []):
-    for key in ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category'):
+    for key in ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category', 'intro', 'summary', 'usageHint', 'howTo', 'examples', 'notes', 'faq'):
         if not tool.get(key): fail(f'Missing {key} in tool {tool.get("slug")}')
+    if len(tool.get('howTo', [])) < 3: fail(f'Not enough howTo steps in {tool.get("slug")}')
+    if len(tool.get('examples', [])) < 2: fail(f'Not enough examples in {tool.get("slug")}')
+    if len(tool.get('notes', [])) < 2: fail(f'Not enough notes in {tool.get("slug")}')
     page = ROOT / 'tools' / f"{tool.get('slug')}.html"
     if not page.exists(): fail(f'Missing generated page: {page.relative_to(ROOT)}')
 

@@ -113,6 +113,13 @@ def faq_schema(tool):
     return {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in tool.get('faq', [])]}
 
 
+def guide_markup(tool):
+    steps = ''.join(f'<li>{escape(item)}</li>' for item in tool.get('howTo', []))
+    notes = ''.join(f'<li>{escape(item)}</li>' for item in tool.get('notes', []))
+    examples = ''.join(f'<div class="example-card"><h3>{escape(item["title"])}</h3><p>{escape(item["text"])}</p></div>' for item in tool.get('examples', []))
+    return f'''<h2>طريقة الاستخدام</h2><p>{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة قبل استخدامها.'))}</p><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
+
+
 def tool_page(tool, tools):
     related = [item for item in tools if item['slug'] != tool['slug'] and item['category'] == tool['category']][:3]
     faqs = ''.join(f'<details><summary>{escape(q)}</summary><p>{escape(a)}</p></details>' for q, a in tool.get('faq', []))
@@ -126,7 +133,7 @@ def tool_page(tool, tools):
     extra = f'{jsonld(graph)}{qr_script}'
     return f'''{head(tool['seoTitle'], tool['seoDescription'], '/tools/' + tool['slug'], extra)}
 <body>{header('tools')}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools">الأدوات</a><span>/</span><span>{escape(tool['name'])}</span></div><h1>{escape(tool['name'])}</h1><p>{escape(tool['intro'])}</p></div></section>
-<section class="section"><div class="container tool-layout"><div><div class="tool-panel"><h2>استخدم {escape(tool['name'])}</h2><p class="tool-instruction">{escape(tool['intro'])} أدخل البيانات المطلوبة ثم راجع النتيجة قبل استخدامها.</p><div class="tool-app" data-tool="{escape(tool['slug'])}"><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript لعرض الحقول والنتيجة التفاعلية.</noscript></div></div><article class="article-copy"><h2>حول {escape(tool['name'])}</h2><p>{escape(tool['intro'])} صممت هذه الأداة لتكون مباشرة وسهلة الاستخدام من الهاتف والكمبيوتر، ولا تحتاج إلى تسجيل حساب.</p><h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></div><aside class="info-card"><h2>لماذا تستخدمها؟</h2><ul><li>مجانية وبدون تسجيل.</li><li>واجهة عربية واضحة.</li><li>نتيجة مباشرة من متصفحك.</li><li>تصميم مناسب للجوال.</li></ul></aside></div></section>
+<section class="section"><div class="container tool-layout"><div><div class="tool-panel"><h2>استخدم {escape(tool['name'])}</h2><p class="tool-instruction">{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة قبل استخدامها.'))}</p><div class="tool-app" data-tool="{escape(tool['slug'])}"><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript لعرض الحقول والنتيجة التفاعلية.</noscript></div></div><article class="article-copy"><h2>حول {escape(tool['name'])}</h2><p>{escape(tool.get('summary', tool['intro']))}</p>{guide_markup(tool)}<h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></div><aside class="info-card"><h2>لماذا تستخدمها؟</h2><ul><li>مجانية وبدون تسجيل.</li><li>واجهة عربية واضحة.</li><li>نتيجة مباشرة من متصفحك.</li><li>تصميم مناسب للجوال.</li></ul></aside></div></section>
 <section class="section" style="padding-top:0"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}<script src="/assets/js/tool-app.js?v={ASSET_VERSION}" defer></script></body></html>'''
 
 

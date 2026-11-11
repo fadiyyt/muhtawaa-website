@@ -15,9 +15,9 @@ python3 -m http.server 8000
 
 ## إضافة أداة جديدة
 
-1. أضف كائن الأداة إلى `data/tools.json` مع `slug` و`name` و`description` وبيانات SEO والأسئلة الشائعة.
+1. أضف كائن الأداة إلى `data/tools.json` مع `slug` و`name` و`description` وبيانات SEO والأسئلة الشائعة، ثم أضف `summary` و`usageHint` و`howTo` و`examples` و`notes` بمحتوى خاص بالأداة.
 2. أضف دالة واجهة في `assets/js/tool-app.js` واربطها بالـ `slug`.
-3. شغل `python3 scripts/build_pages.py` لتوليد صفحة HTML وخريطة الموقع ومسارات Manus.
+3. شغل `python3 scripts/build_pages.py` لتوليد صفحة HTML وخريطة الموقع ومسارات Manus. المولد يضع الإرشادات والأمثلة داخل HTML قبل تشغيل JavaScript.
 4. شغل `python3 scripts/validate_site.py`.
 5. راجع الصفحة محليًا، ثم نفذ commit وpush إلى `main`.
 
