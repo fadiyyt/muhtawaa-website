@@ -239,7 +239,8 @@ def write_site(data):
             (ROOT / 'categories' / f"{category['slug']}.html").write_text(category_page(category, tools), encoding='utf-8')
     category_urls = [f"/categories/{category['slug']}" for category in category_data if any(tool['category'] == category['slug'] for tool in tools)]
     urls = ['/', '/tools', '/about', '/privacy', '/contact'] + category_urls + [f"/tools/{tool['slug']}" for tool in tools]
-    url_xml = '\n'.join(f'  <url><loc>{SITE_URL}{url}</loc><lastmod>{lastmod_for(url, previous)}</lastmod></url>' for url in urls)
+    sitemap_urls = [url for url in urls if url != '/categories/documents']
+    url_xml = '\n'.join(f'  <url><loc>{SITE_URL}{url}</loc><lastmod>{lastmod_for(url, previous)}</lastmod></url>' for url in sitemap_urls)
     (ROOT / 'sitemap.xml').write_text(f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {url_xml}

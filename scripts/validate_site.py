@@ -232,7 +232,10 @@ try:
     sitemap_urls = [entry.findtext('s:loc', namespaces=ns) for entry in sitemap_entries]
     if len(sitemap_urls) != len(set(sitemap_urls)):
         fail('sitemap.xml contains duplicate URLs')
-    expected_urls = {f'https://muhtawaa.com{route}' for route in expected_routes}
+    expected_sitemap_routes = expected_routes - {'/categories/documents'}
+    expected_urls = {f'https://muhtawaa.com{route}' for route in expected_sitemap_routes}
+    if len(sitemap_urls) != 27:
+        fail(f'Expected 27 sitemap URLs, found {len(sitemap_urls)}')
     if set(sitemap_urls) != expected_urls:
         fail('sitemap.xml does not exactly match generated routes')
     for entry in sitemap_entries:
