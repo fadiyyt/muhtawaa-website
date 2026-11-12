@@ -37,6 +37,13 @@
   function jsonMarkup() { return `<div class="tool-form"><div class="form-field"><label for="json-input">JSON الأصلي</label><textarea id="json-input" placeholder='{"name":"محتوى"}'></textarea></div><div class="action-row">${button('تنسيق JSON', 'button-primary')} ${button('تصغير', 'button-quiet')} ${button('نسخ النتيجة', 'button-quiet')}</div><div class="form-field"><label for="json-output">النتيجة</label><textarea id="json-output" readonly></textarea></div></div>`; }
 
   function render() {
+    const separateModule = window.MuhtawaaSaudiTools?.[tool];
+    if (separateModule?.mount) {
+      let settings = {};
+      try { settings = JSON.parse(root.dataset.toolSettings || '{}'); } catch { settings = {}; }
+      separateModule.mount(root, settings);
+      return;
+    }
     const renderers = { 'age-calculator': ageMarkup, 'date-difference': dateDiffMarkup, 'hijri-converter': hijriMarkup, 'word-counter': wordMarkup, 'qr-code': qrMarkup, 'image-compressor': () => imageMarkup('compress'), 'image-resizer': () => imageMarkup('resize'), 'image-converter': () => imageMarkup('convert'), 'text-cleaner': cleanerMarkup, 'invoice-generator': invoiceMarkup, 'percentage-calculator': percentageMarkup, 'discount-calculator': discountMarkup, 'vat-calculator': vatMarkup, 'unit-converter': unitMarkup, 'number-to-words': numberWordsMarkup, 'bmi-calculator': bmiMarkup, 'password-generator': passwordMarkup, 'json-formatter': jsonMarkup };
     root.innerHTML = renderers[tool] ? renderers[tool]() : `<p>${error('الأداة غير متاحة حاليًا.')}</p>`;
     bind();

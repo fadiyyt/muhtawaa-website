@@ -111,6 +111,10 @@
     {
       "path": "/tools/json-formatter",
       "title": "منسق JSON"
+    },
+    {
+      "path": "/tools/end-of-service-calculator",
+      "title": "حاسبة مكافأة نهاية الخدمة"
     }
   ]
 }

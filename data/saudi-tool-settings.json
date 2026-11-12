@@ -1,0 +1,18 @@
+{
+  "reviewedOn": "2026-11-12",
+  "end-of-service-calculator": {
+    "base": {
+      "firstBandYears": 5,
+      "firstBandMonthsPerYear": { "numerator": 1, "denominator": 2 },
+      "laterBandMonthsPerYear": { "numerator": 1, "denominator": 1 }
+    },
+    "resignation": {
+      "twoToFive": { "numerator": 1, "denominator": 3 },
+      "overFiveToTen": { "numerator": 2, "denominator": 3 },
+      "fullAtYears": 10,
+      "tenOrMore": { "numerator": 1, "denominator": 1 }
+    },
+    "verifiedOn": "2026-11-12",
+    "source": "https://www.hrsd.gov.sa/%D8%B9%D9%84%D8%A7%D9%82%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%85%D9%84"
+  }
+}

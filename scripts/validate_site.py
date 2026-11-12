@@ -65,11 +65,11 @@ if len(slugs) != len(set(slugs)):
     fail('Duplicate tool slugs found')
 if len(category_slugs) != len(set(category_slugs)):
     fail('Duplicate category slugs found')
-if len(tools) != 18:
-    fail(f'Expected 18 tools, found {len(tools)}')
+if len(tools) != 19:
+    fail(f'Expected 19 tools, found {len(tools)}')
 
 required = ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category', 'intro', 'summary', 'searchQuestion', 'usageHint', 'methodTitle', 'howWeCalculate', 'howTo', 'examples', 'notes', 'faq', 'relatedTools')
-priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'word-counter', 'percentage-calculator', 'vat-calculator'}
+priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator'}
 for tool in tools:
     slug = tool.get('slug', '(unknown)')
     for key in required:
@@ -154,7 +154,7 @@ for path in html_files:
     for key in ('og:image:width', 'og:image:height'):
         if not parser.meta.get(key):
             fail(f'Missing {key} in {path.relative_to(ROOT)}')
-    expected_asset_version = '20261112-1'
+    expected_asset_version = '20261112-2'
     if f'site.css?v={expected_asset_version}' not in source:
         fail(f'Wrong or missing CSS asset version in {path.relative_to(ROOT)}')
     for link in parser.links:
@@ -234,8 +234,8 @@ try:
         fail('sitemap.xml contains duplicate URLs')
     expected_sitemap_routes = expected_routes - {'/categories/documents'}
     expected_urls = {f'https://muhtawaa.com{route}' for route in expected_sitemap_routes}
-    if len(sitemap_urls) != 27:
-        fail(f'Expected 27 sitemap URLs, found {len(sitemap_urls)}')
+    if len(sitemap_urls) != len(expected_sitemap_routes):
+        fail(f'Expected {len(expected_sitemap_routes)} sitemap URLs, found {len(sitemap_urls)}')
     if set(sitemap_urls) != expected_urls:
         fail('sitemap.xml does not exactly match generated routes')
     for entry in sitemap_entries:
