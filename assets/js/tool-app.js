@@ -105,7 +105,41 @@
   function bindDateDiff() { $('#diff-form').addEventListener('submit', event => { event.preventDefault(); const start = new Date(`${$('#date-start').value}T00:00:00`); const end = new Date(`${$('#date-end').value}T00:00:00`); const box = $('#tool-result'); if (!$('#date-start').value || !$('#date-end').value || start > end) return showResult(box, error('اختر تاريخ البداية قبل تاريخ النهاية.'), true); const days = Math.round((end - start) / 86400000); showResult(box, `<div class="result-big">${days.toLocaleString('ar-SA')} يوم</div><div class="result-muted">أي ما يعادل ${Math.floor(days / 7).toLocaleString('ar-SA')} أسبوعًا و${days % 7} يوم.</div>`); }); }
   function bindHijri() { $('#hijri-form').addEventListener('submit', event => { event.preventDefault(); const value = $('#gregorian-date').value; const box = $('#tool-result'); if (!value) return showResult(box, error('اختر تاريخًا صحيحًا.'), true); try { const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); showResult(box, `<div class="result-big">${esc(formatter.format(new Date(`${value}T12:00:00`)))}</div><div class="result-muted">التاريخ الميلادي: ${esc(value)}</div>`); } catch { showResult(box, error('المتصفح لا يدعم تقويم أم القرى. جرّب متصفحًا حديثًا.'), true); } }); }
   function bindWord() { const input = $('#word-text'); const stats = $('#word-stats'); const update = () => { const text = input.value; const words = text.trim() ? text.trim().split(/\s+/u).length : 0; const lines = text ? text.split(/\r?\n/u).length : 0; stats.innerHTML = `<div class="tool-note"><strong>${words.toLocaleString('ar-SA')}</strong><br>كلمة</div><div class="tool-note"><strong>${text.length.toLocaleString('ar-SA')}</strong><br>حرف</div><div class="tool-note"><strong>${lines.toLocaleString('ar-SA')}</strong><br>سطر</div><div class="tool-note"><strong>${text.replace(/\s/g, '').length.toLocaleString('ar-SA')}</strong><br>حرف بدون مسافات</div>`; }; input.addEventListener('input', update); $('.button-quiet').addEventListener('click', () => copyText(input.value)); update(); }
-  function bindQr() { const output = $('#qr-output'); const text = $('#qr-text'); const actions = $$('.action-row button'); actions[0].addEventListener('click', () => { if (!text.value.trim()) return output.innerHTML = error('اكتب نصًا أو رابطًا أولًا.'); if (!window.QRCode) return output.innerHTML = error('مكتبة QR لم تكتمل، أعد تحميل الصفحة.'); output.innerHTML = ''; new QRCode(output, { text: text.value.trim(), width: 210, height: 210, colorDark: '#102a43', colorLight: '#ffffff' }); }); actions[1].addEventListener('click', () => { const canvas = output.querySelector('canvas'); if (canvas) canvas.toBlob(blob => downloadBlob(blob, 'muhtawaa-qr.png')); }); }
+  function loadQrLibrary() {
+    if (window.QRCode) return Promise.resolve();
+    if (window.qrCodeLibraryPromise) return window.qrCodeLibraryPromise;
+    window.qrCodeLibraryPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('qr-library-load-failed'));
+      document.head.appendChild(script);
+    }).finally(() => {
+      if (!window.QRCode) window.qrCodeLibraryPromise = null;
+    });
+    return window.qrCodeLibraryPromise;
+  }
+  function bindQr() {
+    const output = $('#qr-output'), text = $('#qr-text'), actions = $$('.action-row button');
+    actions[0].addEventListener('click', async () => {
+      if (!text.value.trim()) { output.innerHTML = error('اكتب نصًا أو رابطًا أولًا.'); return; }
+      actions[0].disabled = true;
+      output.textContent = 'جارٍ تجهيز الرمز…';
+      try {
+        await loadQrLibrary();
+        output.innerHTML = '';
+        new QRCode(output, { text: text.value.trim(), width: 210, height: 210, colorDark: '#102a43', colorLight: '#ffffff' });
+      } catch {
+        output.innerHTML = error('تعذر تحميل مكتبة الرمز. تحقق من الاتصال ثم أعد المحاولة.');
+      } finally {
+        actions[0].disabled = false;
+      }
+    });
+    actions[1].addEventListener('click', () => {
+      const canvas = output.querySelector('canvas');
+      if (canvas) canvas.toBlob(blob => { if (blob) downloadBlob(blob, 'muhtawaa-qr.png'); });
+    });
+  }
   function bindImage(kind) {
     const input = $('#image-file'), preview = $('#image-preview'), options = $('#image-options'), actions = $('#image-actions');
     let image, fileName = 'muhtawaa-image';

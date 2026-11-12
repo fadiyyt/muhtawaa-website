@@ -222,3 +222,33 @@ details p { margin-bottom: 0; color: var(--ink-soft); font-size: .9rem; }
   .tool-panel { border: 0; box-shadow: none; }
   .invoice-preview { border: 0; }
 }
+
+
+/* Tool pages: answer first, then the interactive tool before the fold. */
+.tool-page-hero { padding: 24px 0 30px; }
+.tool-hero-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: 22px; margin-top: 18px; }
+.tool-hero-copy { align-self: center; }
+.tool-hero-copy h1 { margin: 0 0 10px; font-size: clamp(1.8rem, 3.3vw, 2.8rem); }
+.tool-answer { font-size: 1.05rem; line-height: 1.8; }
+.tool-page-hero .tool-panel { min-height: 0; }
+.tool-page-hero .tool-panel > h2 { margin: 0 0 8px; font-size: 1.18rem; }
+.tool-page-hero .tool-instruction { margin-bottom: 14px; }
+.article-copy .example-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.formula-card { margin: 14px 0 22px; padding: 14px 16px; border-inline-start: 4px solid var(--brand); border-radius: 12px; background: var(--surface-soft); }
+.formula-card p { margin: 7px 0 0; color: var(--ink); font-weight: 700; }
+.source-list a { color: var(--brand-dark); text-decoration: underline; text-underline-offset: 3px; }
+.source-list span { color: var(--ink-soft); }
+@media (max-width: 860px) {
+  .tool-hero-grid { grid-template-columns: 1fr; gap: 14px; }
+  .tool-hero-copy { align-self: auto; }
+  .article-copy .example-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .tool-page-hero { padding: 18px 0 22px; }
+  .tool-hero-grid { margin-top: 13px; }
+  .tool-hero-copy h1 { font-size: 1.85rem; }
+}
+
+.category-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 22px; }
+.category-shortcuts a { padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--brand-dark); background: var(--surface); font-size: .86rem; }
+.category-shortcuts a:hover { border-color: var(--brand); background: var(--surface-soft); }
