@@ -37,6 +37,10 @@
       "title": "الصور"
     },
     {
+      "path": "/categories/documents",
+      "title": "المستندات"
+    },
+    {
       "path": "/tools/age-calculator",
       "title": "حاسبة العمر"
     },
