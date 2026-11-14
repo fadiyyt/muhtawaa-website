@@ -11,25 +11,29 @@ const cases={
  'speed-converter':{value:100,from:'kph',to:'mps',expected:100/3.6,back:'kph'},
  'pressure-converter':{value:1,from:'bar',to:'kpa',expected:100,back:'bar'},
  'energy-converter':{value:5,from:'wh',to:'j',expected:18000,back:'wh'},
- 'data-size-converter':{value:1,from:'MiB',to:'MB',expected:1.048576,back:'MiB'},
+ 'data-size-converter':{value:1,from:'MiB',to:'KiB',expected:1024,back:'MiB',system:'binary'},
  'time-unit-converter':{value:2.5,from:'h',to:'min',expected:150,back:'h'},
  'temperature-converter':{value:25,from:'C',to:'F',expected:77,back:'C'}
 };
 for(const [slug,c] of Object.entries(cases)){
   assert.ok(api.tools[slug],`${slug}: registered`);
   const unit=api.tools[slug].units[0][0];
-  assert.equal(api.convert(slug,{value:'1',from:unit,to:unit})['النتيجة'],`${number(1)} ${api.tools[slug].units[0][1]}`,`${slug}: identity`);
-  const result=api.convert(slug,{value:String(c.value),from:c.from,to:c.to});
+  assert.equal(api.convert(slug,{value:'1',from:unit,to:unit,system:c.system})['النتيجة'],`${number(1)} ${api.tools[slug].units[0][1]}`,`${slug}: identity`);
+  const result=api.convert(slug,{value:String(c.value),from:c.from,to:c.to,system:c.system});
   assert.equal(result['النتيجة'],`${number(c.expected)} ${api.tools[slug].units.find(x=>x[0]===c.to)[1]}`,`${slug}: known conversion`);
   assert.ok(result['عامل المصدر إلى الوحدة المرجعية']||result['المعادلة المستخدمة'],`${slug}: explains factor or formula`);
-  const back=api.convert(slug,{value:String(c.expected),from:c.to,to:c.back});
+  const back=api.convert(slug,{value:String(c.expected),from:c.to,to:c.back,system:c.system});
   assert.equal(back['النتيجة'],`${number(c.value)} ${api.tools[slug].units.find(x=>x[0]===c.back)[1]}`,`${slug}: reverse conversion`);
   assert.throws(()=>api.convert(slug,{value:'',from:c.from,to:c.to}),/رقمًا صالحًا/,`${slug}: rejects blank`);
-  assert.throws(()=>api.convert(slug,{value:'1',from:'invalid',to:c.to}),/وحدة صالحة/,`${slug}: rejects unknown unit`);
+  assert.throws(()=>api.convert(slug,{value:'1',from:'invalid',to:c.to,system:c.system}),slug==='data-size-converter'?/نظام التحويل المحدد/:/وحدة صالحة/,`${slug}: rejects unknown unit`);
   if(slug==='temperature-converter') assert.throws(()=>api.convert(slug,{value:'-274',from:'C',to:'K'}),/الصفر المطلق/,`${slug}: rejects below absolute zero`);
-  else assert.throws(()=>api.convert(slug,{value:'-1',from:c.from,to:c.to}),/السالبة/,`${slug}: rejects negative quantity`);
+  else assert.throws(()=>api.convert(slug,{value:'-1',from:c.from,to:c.to,system:c.system}),/السالبة/,`${slug}: rejects negative quantity`);
 }
 assert.equal(api.convert('temperature-converter',{value:'0',from:'C',to:'F'})['النتيجة'],`${number(32)} ${api.tools['temperature-converter'].units.find(x=>x[0]==='F')[1]}`);
-assert.equal(api.convert('data-size-converter',{value:'1',from:'KiB',to:'B'})['النتيجة'],`${number(1024)} بايت`);
+assert.equal(api.convert('data-size-converter',{value:'1',from:'GB',to:'MB',system:'decimal'})['النتيجة'],`${number(1000)} ميغابايت عشري`);
+assert.equal(api.convert('data-size-converter',{value:'1',from:'GiB',to:'MiB',system:'binary'})['النتيجة'],`${number(1024)} ميبيبايت ثنائي`);
+assert.equal(api.convert('data-size-converter',{value:'1',from:'KiB',to:'B',system:'binary'})['النتيجة'],`${number(1024)} بايت`);
+assert.throws(()=>api.convert('data-size-converter',{value:'1',from:'GB',to:'MB',system:'binary'}),/نظام التحويل المحدد/);
+assert.ok(api.tools['data-size-converter'].hint.includes('1 GB = 1000 MB')&&api.tools['data-size-converter'].hint.includes('1 GiB = 1024 MiB'));
 assert.throws(()=>api.convert('unknown',{value:'1',from:'m',to:'km'}),/غير معروفة/);
 console.log('PASS: 10 converter tools; identity, forward, inverse, factors/formula, blank/invalid-unit and negative/absolute-zero boundaries.');

@@ -17,8 +17,11 @@ for(const slug of Object.keys(api.tools)) assert.ok(api.tools[slug],`${slug} reg
 }
 {
  const s='business-days-calculator';
+ assert.equal(api.tools[s].fields.find(field=>field.id==='weekend').value,'fri-sat');
  assert.deepEqual(api.businessDays('2026-01-05','2026-01-11','sat-sun'),{business:5,weekend:2,total:7,weekendName:'السبت والأحد'});
  assert.deepEqual(api.businessDays('2026-01-08','2026-01-11','fri-sat'),{business:2,weekend:2,total:4,weekendName:'الجمعة والسبت'});
+ assert.deepEqual(api.businessDays('2026-11-15','2026-11-26'),{business:10,weekend:2,total:12,weekendName:'الجمعة والسبت'});
+ assert.equal(api.calculate(s,{start:'2026-11-15',end:'2026-11-26'})['أيام العمل'],'10');
  assert.deepEqual(api.businessDays('2026-01-05','2026-01-05','sat-sun'),{business:1,weekend:0,total:1,weekendName:'السبت والأحد'});
  assert.throws(()=>api.businessDays('2026-01-11','2026-01-05','fri-sat'),/البداية تاريخ النهاية/);
  assert.throws(()=>api.businessDays('2026-01-05','2026-01-07','invalid'),/عطلة نهاية أسبوع/);

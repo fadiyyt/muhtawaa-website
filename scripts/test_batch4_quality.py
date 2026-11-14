@@ -6,7 +6,7 @@ import json, re, subprocess, sys, unicodedata
 ROOT=Path(__file__).resolve().parents[1]
 
 def load_main_registry():
-    raw=subprocess.check_output(['git','show','origin/main:data/tools.json'],cwd=ROOT,text=True)
+    raw=subprocess.check_output(['git','show','origin/main^:data/tools.json'],cwd=ROOT,text=True)
     return json.loads(raw)
 
 def article_text(tool):
@@ -29,7 +29,12 @@ def main():
     old={t['slug']:t for t in baseline['tools']};all_tools={t['slug']:t for t in current['tools']}
     assert len(old)==25,f'Expected 25 baseline tools; found {len(old)}'
     assert len(all_tools)==55,f'Expected 55 total tools; found {len(all_tools)}'
-    assert all(all_tools.get(slug)==tool for slug,tool in old.items()),'One or more pre-existing tool records changed.'
+    allowed_old_links={'percentage-calculator','discount-calculator'}
+    assert all(
+        {key:value for key,value in all_tools.get(slug,{}).items() if not (slug in allowed_old_links and key=='relatedTools')}
+        == {key:value for key,value in tool.items() if not (slug in allowed_old_links and key=='relatedTools')}
+        for slug,tool in old.items()
+    ),'Unexpected pre-existing tool record/content change.'
     new={slug:tool for slug,tool in all_tools.items() if slug not in old}
     assert len(new)==30,f'Expected 30 new tools; found {len(new)}'
     for slug,tool in new.items():

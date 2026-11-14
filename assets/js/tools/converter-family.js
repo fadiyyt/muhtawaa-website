@@ -20,6 +20,11 @@
     'time-unit-converter': { title: 'محول وحدات الزمن', label: 'المدة', units: [['ms','مللي ثانية',.001],['s','ثانية',1],['min','دقيقة',60],['h','ساعة',3600],['d','يوم (24 ساعة)',86400],['wk','أسبوع (7 أيام)',604800],['yr','سنة اصطلاحية (365 يومًا)',31536000]] }
   };
 
+  const DATA_SIZE_SYSTEMS = {
+    decimal: { label: 'النظام العشري (GB وMB)', units: ['B','KB','MB','GB','TB'], from: 'GB', to: 'MB' },
+    binary: { label: 'النظام الثنائي (GiB وMiB)', units: ['B','KiB','MiB','GiB','TiB'], from: 'GiB', to: 'MiB' }
+  };
+
   for (const config of Object.values(tools)) {
     config.fields = [
       { id: 'value', label: `قيمة ${config.label}`, type: 'number', min: 0, step: 'any', value: 1 },
@@ -28,6 +33,13 @@
     ];
     config.hint = 'أدخل كمية غير سالبة، ثم اختر الوحدة الأصلية والوحدة المطلوبة. تُحسب عوامل التحويل دون إرسال القيمة إلى خدمة خارجية.';
   }
+  tools['data-size-converter'].fields = [
+    { id: 'system', label: 'نظام الوحدات', type: 'select', options: [['decimal','عشري: 1 GB = 1000 MB'],['binary','ثنائي: 1 GiB = 1024 MiB']] },
+    { id: 'value', label: 'حجم البيانات', type: 'number', min: 0, step: 'any', value: 1 },
+    { id: 'from', label: 'من الوحدة', type: 'select', options: tools['data-size-converter'].units.map(([id,name]) => [id,name]) },
+    { id: 'to', label: 'إلى الوحدة', type: 'select', options: tools['data-size-converter'].units.map(([id,name]) => [id,name]) }
+  ];
+  tools['data-size-converter'].hint = 'اختر نظام الوحدات أولًا: عشري 1 GB = 1000 MB، أو ثنائي 1 GiB = 1024 MiB؛ ثم اختر وحدتي التحويل.';
   tools['temperature-converter'] = {
     title: 'محول الحرارة', label: 'درجة الحرارة', units: [['C','مئوية °C'],['F','فهرنهايت °F'],['K','كلفن K']],
     hint: 'حوّل بين المئوية والفهرنهايت والكلفن. درجات الحرارة المطلقة الأدنى من الصفر المطلق غير صالحة.',
@@ -58,6 +70,12 @@
     if (!config) throw new Error('أداة التحويل غير معروفة.');
     const value = number(input.value, config.label);
     const from = String(input.from), to = String(input.to);
+    const dataSystem = input.system || 'decimal';
+    if (slug === 'data-size-converter') {
+      const system = DATA_SIZE_SYSTEMS[dataSystem];
+      if (!system) throw new Error('اختر النظام العشري أو الثنائي.');
+      if (!system.units.includes(from) || !system.units.includes(to)) throw new Error('اختر وحدات من نظام التحويل المحدد فقط.');
+    }
     const fromName = unitName(config, from), toName = unitName(config, to);
     let result, base;
     if (slug === 'temperature-converter') {
@@ -77,7 +95,11 @@
     if (!Number.isFinite(result) || !Number.isFinite(base)) throw new Error('القيمة كبيرة جدًا للحساب الدقيق؛ أدخل كمية أصغر.');
     const output = { 'النتيجة': `${fmt(result)} ${toName}`, 'عامل المصدر إلى الوحدة المرجعية': `${fmt(fromFactor)} لكل ${unitName(config, from)}`, 'عامل الوحدة الهدف إلى الوحدة المرجعية': `${fmt(toFactor)} لكل ${unitName(config, to)}`, 'القيمة المرجعية': `${fmt(base)} ${slug === 'length-converter' ? 'متر' : slug === 'weight-converter' ? 'كيلوغرام' : slug === 'area-converter' ? 'متر مربع' : slug === 'volume-converter' ? 'لتر' : slug === 'speed-converter' ? 'متر/ثانية' : slug === 'pressure-converter' ? 'باسكال' : slug === 'energy-converter' ? 'جول' : slug === 'data-size-converter' ? 'بايت' : 'ثانية'}` };
     if (slug === 'weight-converter') output['توضيح'] = 'هذه مقارنة لوحدات الكتلة. الوزن الفيزيائي قوة تتأثر بتسارع الجاذبية.';
-    if (slug === 'data-size-converter') output['أساس الوحدات'] = `${fromName}: ${fmt(fromFactor)} بايت؛ ${toName}: ${fmt(toFactor)} بايت. الوحدات العشرية تستخدم 1000 والثنائية 1024.`;
+    if (slug === 'data-size-converter') {
+      output['نظام التحويل'] = DATA_SIZE_SYSTEMS[dataSystem].label;
+      output['أساس الوحدات'] = dataSystem === 'decimal' ? 'عشري: 1 GB = 1000 MB، وكل بادئة عشرية تستخدم 1000.' : 'ثنائي: 1 GiB = 1024 MiB، وكل بادئة ثنائية تستخدم 1024.';
+      output['عوامل الوحدات المختارة'] = `${fromName}: ${fmt(fromFactor)} بايت؛ ${toName}: ${fmt(toFactor)} بايت.`;
+    }
     if (slug === 'time-unit-converter' && (from === 'yr' || to === 'yr')) output['تعريف السنة'] = 'السنة هنا اصطلاحية من 365 يومًا، وليست سنة تقويمية مرتبطة بتاريخ محدد.';
     return output;
   }
@@ -92,6 +114,22 @@
     if (!config) return;
     rootElement.innerHTML = `<form class="tool-form"><div class="form-grid">${config.fields.map(fieldMarkup).join('')}</div><p class="tool-note">${esc(config.hint)}</p><div class="action-row"><button class="button-primary" type="submit">حوّل الوحدات</button><button class="button-quiet" type="reset">مسح</button></div><div class="result-box" aria-live="polite"></div></form>`;
     const form = rootElement.querySelector('form'), box = rootElement.querySelector('.result-box');
+    if (slug === 'data-size-converter') {
+      const systemField = form.querySelector('#system');
+      const updateUnitOptions = () => {
+        const system = DATA_SIZE_SYSTEMS[systemField.value] || DATA_SIZE_SYSTEMS.decimal;
+        for (const [fieldId, selected] of [['from',system.from],['to',system.to]]) {
+          const select = form.querySelector(`#${fieldId}`);
+          select.replaceChildren(...config.units.filter(([id]) => system.units.includes(id)).map(([id,name]) => {
+            const option = document.createElement('option'); option.value = id; option.textContent = name; return option;
+          }));
+          select.value = selected;
+        }
+      };
+      systemField.addEventListener('change', updateUnitOptions);
+      updateUnitOptions();
+      form.addEventListener('reset', () => setTimeout(updateUnitOptions, 0));
+    }
     form.addEventListener('submit', event => {
       event.preventDefault();
       try {

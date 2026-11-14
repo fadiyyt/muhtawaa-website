@@ -11,7 +11,7 @@ from generate_og_images import generate_og_images
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261114-5'
+ASSET_VERSION = '20261114-6'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -210,11 +210,13 @@ def tool_page(tool, tools):
     if sources:
         source_rows = ''.join(f'<li><a href="{escape(item["url"], quote=True)}" target="_blank" rel="noopener noreferrer">{escape(item["title"])}</a><span> — {escape(item.get("claim", ""))} ({escape(item.get("checkedAt", ""))})</span></li>' for item in sources)
         source_markup = f'<h2>مصادر موثوقة</h2><ul class="guide-list source-list">{source_rows}</ul>'
+    page_note = tool.get('pageNote', '').strip()
+    page_note_markup = f'<aside class="formula-card"><strong>توضيح وحدات البيانات:</strong><p>{escape(page_note)}</p></aside>' if page_note else ''
     image_path = f'/assets/images/og/tools/{tool["slug"]}.png'
     search_question = tool.get('searchQuestion', tool['name'])
     return f'''{head(tool['seoTitle'], tool['seoDescription'], '/tools/' + tool['slug'], extra, image_path, search_question)}
 <body>{header('tools')}<main id="main"><section class="page-hero tool-page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools">الأدوات</a><span>/</span><span>{escape(tool['name'])}</span></div><div class="tool-hero-grid"><div class="tool-hero-copy"><h1>{escape(search_question)}</h1><p class="tool-answer">{escape(tool.get('summary', tool['description']))}</p></div><div class="tool-panel"><h2>{escape(tool['name'])}</h2><p class="tool-instruction">{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة.'))}</p><div class="tool-app" data-tool="{escape(tool['slug'])}"{settings_attr}><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript لعرض الحقول والنتيجة التفاعلية.</noscript></div></div></div></div></section>
-<section class="section"><article class="container article-copy"><h2>حول {escape(tool['name'])}</h2>{paragraph_markup(tool.get('intro', ''))}{guide_markup(tool)}{source_markup}<h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></section>
+<section class="section"><article class="container article-copy"><h2>حول {escape(tool['name'])}</h2>{paragraph_markup(tool.get('intro', ''))}{guide_markup(tool)}{page_note_markup}{source_markup}<h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></section>
 <section class="section related-section"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}{module_markup}<script src="/assets/js/tool-app.js?v={ASSET_VERSION}" defer></script></body></html>'''
 
 
