@@ -11,7 +11,7 @@ from generate_og_images import generate_og_images
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261114-3'
+ASSET_VERSION = '20261114-4'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -161,6 +161,10 @@ def tool_app_config(tool):
         'hijri-converter': 'hijri-tools.js',
         'hijri-calendar': 'hijri-tools.js',
         'zakat-calculator': 'zakat-calculator.js',
+        'pdf-merge': 'pdf-tools.js',
+        'pdf-split': 'pdf-tools.js',
+        'images-to-pdf': 'pdf-tools.js',
+        'pdf-organizer': 'pdf-tools.js',
     }
     module_file = modules.get(tool['slug'])
     module_markup = f'<script src="/assets/js/tools/{module_file}?v={ASSET_VERSION}" defer></script>' if module_file else ''
