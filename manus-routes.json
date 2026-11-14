@@ -123,6 +123,22 @@
     {
       "path": "/tools/zakat-calculator",
       "title": "حاسبة الزكاة الشخصية"
+    },
+    {
+      "path": "/tools/pdf-merge",
+      "title": "دمج ملفات PDF"
+    },
+    {
+      "path": "/tools/pdf-split",
+      "title": "تقسيم ملف PDF"
+    },
+    {
+      "path": "/tools/images-to-pdf",
+      "title": "تحويل الصور إلى PDF"
+    },
+    {
+      "path": "/tools/pdf-organizer",
+      "title": "ترتيب وتدوير صفحات PDF"
     }
   ]
 }

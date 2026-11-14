@@ -65,11 +65,11 @@ if len(slugs) != len(set(slugs)):
     fail('Duplicate tool slugs found')
 if len(category_slugs) != len(set(category_slugs)):
     fail('Duplicate category slugs found')
-if len(tools) != 21:
-    fail(f'Expected 21 tools, found {len(tools)}')
+if len(tools) != 25:
+    fail(f'Expected 25 tools, found {len(tools)}')
 
 required = ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category', 'intro', 'summary', 'searchQuestion', 'usageHint', 'methodTitle', 'howWeCalculate', 'howTo', 'examples', 'notes', 'faq', 'relatedTools')
-priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'hijri-calendar', 'zakat-calculator', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator'}
+priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'hijri-calendar', 'zakat-calculator', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator', 'pdf-merge', 'pdf-split', 'images-to-pdf', 'pdf-organizer'}
 for tool in tools:
     slug = tool.get('slug', '(unknown)')
     for key in required:
@@ -117,6 +117,22 @@ try:
         fail('Umm al-Qura official sample verification is incomplete')
 except Exception as exc:
     fail(f'Umm al-Qura table or verification samples are invalid: {exc}')
+
+pdf_worker = ROOT / 'assets/js/tools/pdf-tools-worker.js'
+pdf_module = ROOT / 'assets/js/tools/pdf-tools.js'
+pdf_library = ROOT / 'assets/vendor/pdf-lib.min.js'
+pdf_license = ROOT / 'assets/vendor/pdf-lib-LICENSE.md'
+for path in (pdf_worker, pdf_module, pdf_library, pdf_license):
+    if not path.exists() or path.stat().st_size == 0:
+        fail(f'Missing local PDF tool asset: {path.relative_to(ROOT)}')
+if pdf_worker.exists():
+    worker_source = pdf_worker.read_text(encoding='utf-8')
+    if "importScripts('/assets/vendor/pdf-lib.min.js')" not in worker_source:
+        fail('PDF worker must import the local pdf-lib bundle, not a CDN')
+    if re.search(r'\bfetch\s*\(|XMLHttpRequest|sendBeacon|https?://', worker_source):
+        fail('PDF worker contains a network request path')
+if pdf_license.exists() and 'MIT License' not in pdf_license.read_text(encoding='utf-8'):
+    fail('Bundled pdf-lib license file must include the MIT License text')
 
 
 def png_dimensions(path):
@@ -166,7 +182,7 @@ for path in html_files:
     for key in ('og:image:width', 'og:image:height'):
         if not parser.meta.get(key):
             fail(f'Missing {key} in {path.relative_to(ROOT)}')
-    expected_asset_version = '20261114-3'
+    expected_asset_version = '20261114-4'
     if f'site.css?v={expected_asset_version}' not in source:
         fail(f'Wrong or missing CSS asset version in {path.relative_to(ROOT)}')
     for link in parser.links:

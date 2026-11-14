@@ -1,11 +1,14 @@
-const CACHE_NAME = 'muhtawaa-tools-v8';
+const CACHE_NAME = 'muhtawaa-tools-v9';
 const CORE = [
   '/', '/tools.html', '/categories/documents.html',
   '/tools/age-calculator', '/tools/hijri-converter', '/tools/hijri-calendar',
   '/tools/end-of-service-calculator', '/tools/zakat-calculator',
+  '/tools/pdf-merge', '/tools/pdf-split', '/tools/images-to-pdf', '/tools/pdf-organizer',
   '/data/ummalqura-1356-1500.json',
   '/assets/css/site.css', '/assets/js/site.js', '/assets/js/tool-app.js',
   '/assets/js/tools/hijri-tools.js', '/assets/js/tools/end-of-service-calculator.js', '/assets/js/tools/zakat-calculator.js',
+  '/assets/js/tools/pdf-tools.js', '/assets/js/tools/pdf-tools-worker.js',
+  '/assets/vendor/pdf-lib.min.js', '/assets/vendor/pdf-lib-LICENSE.md',
   '/assets/fonts/Cairo-Arabic.woff2', '/assets/fonts/Cairo-Latin.woff2', '/assets/fonts/Cairo-Latin-Ext.woff2',
   '/assets/images/og/site.png', '/favicon.svg', '/og-image.svg'
 ];
