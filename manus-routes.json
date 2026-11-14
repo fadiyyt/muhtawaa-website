@@ -50,7 +50,7 @@
     },
     {
       "path": "/tools/hijri-converter",
-      "title": "محول التاريخ إلى هجري"
+      "title": "محول التاريخ الهجري والميلادي"
     },
     {
       "path": "/tools/word-counter",
@@ -111,6 +111,18 @@
     {
       "path": "/tools/json-formatter",
       "title": "منسق JSON"
+    },
+    {
+      "path": "/tools/end-of-service-calculator",
+      "title": "حاسبة مكافأة نهاية الخدمة"
+    },
+    {
+      "path": "/tools/hijri-calendar",
+      "title": "التاريخ الهجري اليوم"
+    },
+    {
+      "path": "/tools/zakat-calculator",
+      "title": "حاسبة الزكاة الشخصية"
     }
   ]
 }

@@ -1,0 +1,218 @@
+{
+  "source": "https://www.ummulqura.org.sa/ar/converter",
+  "api": "https://umqserv.kacst.gov.sa/api/v1/DateConversion/GetHijriFromGregorian",
+  "verifiedAt": "2026-11-14",
+  "method": "30 evenly distributed Gregorian dates across the supported interval; compare official converter API to Intl-generated static table",
+  "samples": [
+    {
+      "gregorian": "1937-03-14",
+      "intl": "1356-01-01",
+      "official": "1356-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1942-01-19",
+      "intl": "1361-01-02",
+      "official": "1361-01-02",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1946-11-26",
+      "intl": "1366-01-02",
+      "official": "1366-01-02",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1951-10-02",
+      "intl": "1370-12-30",
+      "official": "1370-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "1956-08-08",
+      "intl": "1376-01-01",
+      "official": "1376-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1961-06-15",
+      "intl": "1381-01-01",
+      "official": "1381-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1966-04-22",
+      "intl": "1386-01-01",
+      "official": "1386-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1971-02-27",
+      "intl": "1391-01-01",
+      "official": "1391-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1976-01-03",
+      "intl": "1396-01-01",
+      "official": "1396-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1980-11-09",
+      "intl": "1401-01-01",
+      "official": "1401-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1985-09-16",
+      "intl": "1406-01-01",
+      "official": "1406-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1990-07-24",
+      "intl": "1411-01-02",
+      "official": "1411-01-02",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "1995-05-31",
+      "intl": "1416-01-01",
+      "official": "1416-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2000-04-05",
+      "intl": "1420-12-30",
+      "official": "1420-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2005-02-10",
+      "intl": "1426-01-01",
+      "official": "1426-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2009-12-18",
+      "intl": "1431-01-01",
+      "official": "1431-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2014-10-25",
+      "intl": "1436-01-01",
+      "official": "1436-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2019-08-31",
+      "intl": "1441-01-01",
+      "official": "1441-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2024-07-07",
+      "intl": "1446-01-01",
+      "official": "1446-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2029-05-14",
+      "intl": "1451-01-01",
+      "official": "1451-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2034-03-21",
+      "intl": "1455-12-30",
+      "official": "1455-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2039-01-26",
+      "intl": "1461-01-01",
+      "official": "1461-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2043-12-02",
+      "intl": "1465-12-30",
+      "official": "1465-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2048-10-08",
+      "intl": "1470-12-29",
+      "official": "1470-12-29",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2053-08-15",
+      "intl": "1476-01-01",
+      "official": "1476-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2058-06-22",
+      "intl": "1481-01-01",
+      "official": "1481-01-01",
+      "nameAr": "محرم",
+      "match": true
+    },
+    {
+      "gregorian": "2063-04-29",
+      "intl": "1485-12-30",
+      "official": "1485-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2068-03-04",
+      "intl": "1490-12-29",
+      "official": "1490-12-29",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2073-01-09",
+      "intl": "1495-12-30",
+      "official": "1495-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    },
+    {
+      "gregorian": "2077-11-16",
+      "intl": "1500-12-30",
+      "official": "1500-12-30",
+      "nameAr": "ذو الحجة",
+      "match": true
+    }
+  ]
+}

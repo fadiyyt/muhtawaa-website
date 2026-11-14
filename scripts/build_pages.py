@@ -11,7 +11,7 @@ from generate_og_images import generate_og_images
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261112-1'
+ASSET_VERSION = '20261114-3'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -150,6 +150,23 @@ def faq_schema(tool):
     return {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in tool.get('faq', [])]}
 
 
+def tool_app_config(tool):
+    settings_path = ROOT / 'data' / 'saudi-tool-settings.json'
+    settings = json.loads(settings_path.read_text(encoding='utf-8')).get(tool['slug'], {}) if settings_path.exists() else {}
+    encoded = json.dumps(settings, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+    settings_attr = f' data-tool-settings="{escape(encoded, quote=True)}"' if settings else ''
+    modules = {
+        'end-of-service-calculator': 'end-of-service-calculator.js',
+        'age-calculator': 'hijri-tools.js',
+        'hijri-converter': 'hijri-tools.js',
+        'hijri-calendar': 'hijri-tools.js',
+        'zakat-calculator': 'zakat-calculator.js',
+    }
+    module_file = modules.get(tool['slug'])
+    module_markup = f'<script src="/assets/js/tools/{module_file}?v={ASSET_VERSION}" defer></script>' if module_file else ''
+    return settings_attr, module_markup
+
+
 def paragraph_markup(value):
     paragraphs = [part.strip() for part in str(value or '').split('\n\n') if part.strip()]
     return ''.join(f'<p>{escape(part)}</p>' for part in paragraphs)
@@ -162,7 +179,9 @@ def guide_markup(tool):
     method_title = escape(tool.get('methodTitle', 'كيف تعمل الأداة؟'))
     formula = tool.get('formula', '').strip()
     formula_markup = f'<div class="formula-card"><strong>المعادلة أو طريقة المعالجة:</strong><p>{escape(formula)}</p></div>' if formula else ''
-    return f'''<h2>{method_title}</h2><p>{escape(tool.get('howWeCalculate', ''))}</p>{formula_markup}<h2>طريقة الاستخدام</h2><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
+    law_quote = tool.get('lawQuote', '').strip()
+    quote_markup = f'<blockquote class="law-quote">{escape(law_quote)}<cite>المادة 85 — وزارة الموارد البشرية والتنمية الاجتماعية</cite></blockquote>' if law_quote else ''
+    return f'''<h2>{method_title}</h2><p>{escape(tool.get('howWeCalculate', ''))}</p>{quote_markup}{formula_markup}<h2>طريقة الاستخدام</h2><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
 
 
 def tool_page(tool, tools):
@@ -177,6 +196,7 @@ def tool_page(tool, tools):
     breadcrumb = {'@type': 'BreadcrumbList', '@id': f'{tool_url}#breadcrumb', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': f'{SITE_URL}/'}, {'@type': 'ListItem', 'position': 2, 'name': 'الأدوات', 'item': f'{SITE_URL}/tools'}, {'@type': 'ListItem', 'position': 3, 'name': tool['name'], 'item': tool_url}]}
     graph = {'@context': 'https://schema.org', '@graph': [app_schema, breadcrumb, {'@type': 'FAQPage', '@id': f'{tool_url}#faq', 'mainEntity': faq_schema(tool)['mainEntity']}]}
     extra = jsonld(graph)
+    settings_attr, module_markup = tool_app_config(tool)
     sources = tool.get('sources', [])
     source_markup = ''
     if sources:
@@ -185,9 +205,9 @@ def tool_page(tool, tools):
     image_path = f'/assets/images/og/tools/{tool["slug"]}.png'
     search_question = tool.get('searchQuestion', tool['name'])
     return f'''{head(tool['seoTitle'], tool['seoDescription'], '/tools/' + tool['slug'], extra, image_path, search_question)}
-<body>{header('tools')}<main id="main"><section class="page-hero tool-page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools">الأدوات</a><span>/</span><span>{escape(tool['name'])}</span></div><div class="tool-hero-grid"><div class="tool-hero-copy"><h1>{escape(search_question)}</h1><p class="tool-answer">{escape(tool.get('summary', tool['description']))}</p></div><div class="tool-panel"><h2>{escape(tool['name'])}</h2><p class="tool-instruction">{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة.'))}</p><div class="tool-app" data-tool="{escape(tool['slug'])}"><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript لعرض الحقول والنتيجة التفاعلية.</noscript></div></div></div></div></section>
+<body>{header('tools')}<main id="main"><section class="page-hero tool-page-hero"><div class="container"><div class="breadcrumbs"><a href="/">الرئيسية</a><span>/</span><a href="/tools">الأدوات</a><span>/</span><span>{escape(tool['name'])}</span></div><div class="tool-hero-grid"><div class="tool-hero-copy"><h1>{escape(search_question)}</h1><p class="tool-answer">{escape(tool.get('summary', tool['description']))}</p></div><div class="tool-panel"><h2>{escape(tool['name'])}</h2><p class="tool-instruction">{escape(tool.get('usageHint', 'أدخل البيانات المطلوبة ثم راجع النتيجة.'))}</p><div class="tool-app" data-tool="{escape(tool['slug'])}"{settings_attr}><noscript>تحتاج هذه الأداة إلى تفعيل JavaScript لعرض الحقول والنتيجة التفاعلية.</noscript></div></div></div></div></section>
 <section class="section"><article class="container article-copy"><h2>حول {escape(tool['name'])}</h2>{paragraph_markup(tool.get('intro', ''))}{guide_markup(tool)}{source_markup}<h2>أسئلة شائعة</h2><div class="faq-list">{faqs}</div></article></section>
-<section class="section related-section"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}<script src="/assets/js/tool-app.js?v={ASSET_VERSION}" defer></script></body></html>'''
+<section class="section related-section"><div class="container"><div class="section-head"><div><div class="section-kicker">قد تحتاج أيضًا</div><h2>أدوات مرتبطة</h2></div></div><div class="tool-grid">{related_html}</div></div></section></main>{footer()}{module_markup}<script src="/assets/js/tool-app.js?v={ASSET_VERSION}" defer></script></body></html>'''
 
 
 def index_page(tools):
