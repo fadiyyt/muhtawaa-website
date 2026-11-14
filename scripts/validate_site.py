@@ -65,8 +65,8 @@ if len(slugs) != len(set(slugs)):
     fail('Duplicate tool slugs found')
 if len(category_slugs) != len(set(category_slugs)):
     fail('Duplicate category slugs found')
-if len(tools) != 25:
-    fail(f'Expected 25 tools, found {len(tools)}')
+if len(tools) != 55:
+    fail(f'Expected 55 tools, found {len(tools)}')
 
 required = ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category', 'intro', 'summary', 'searchQuestion', 'usageHint', 'methodTitle', 'howWeCalculate', 'howTo', 'examples', 'notes', 'faq', 'relatedTools')
 priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'hijri-calendar', 'zakat-calculator', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator', 'pdf-merge', 'pdf-split', 'images-to-pdf', 'pdf-organizer'}
@@ -85,6 +85,11 @@ for tool in tools:
         fail(f'Expected 3 notes in {slug}')
     if len(tool.get('faq', [])) != 6:
         fail(f'Expected 6 FAQs in {slug}')
+    if slug in {s for s in slugs if s not in {'age-calculator', 'date-difference', 'hijri-converter', 'word-counter', 'qr-code', 'image-compressor', 'image-resizer', 'image-converter', 'text-cleaner', 'invoice-generator', 'percentage-calculator', 'discount-calculator', 'vat-calculator', 'unit-converter', 'number-to-words', 'bmi-calculator', 'password-generator', 'json-formatter', 'end-of-service-calculator', 'hijri-calendar', 'zakat-calculator', 'pdf-merge', 'pdf-split', 'images-to-pdf', 'pdf-organizer'}}:
+        content = ' '.join([tool.get('intro', ''), tool.get('howWeCalculate', ''), tool.get('formula', ''), *tool.get('howTo', []), *[x.get('title', '') + ' ' + x.get('text', '') for x in tool.get('examples', [])], *tool.get('notes', []), *[x[0] + ' ' + x[1] for x in tool.get('faq', [])]])
+        words = len(content.split())
+        if words < 250:
+            fail(f'New tool content is only {words} words in {slug}; minimum is 250')
     related = tool.get('relatedTools', [])
     if not 3 <= len(related) <= 5:
         fail(f'Expected 3–5 related tools in {slug}')
@@ -182,7 +187,7 @@ for path in html_files:
     for key in ('og:image:width', 'og:image:height'):
         if not parser.meta.get(key):
             fail(f'Missing {key} in {path.relative_to(ROOT)}')
-    expected_asset_version = '20261114-4'
+    expected_asset_version = '20261114-5'
     if f'site.css?v={expected_asset_version}' not in source:
         fail(f'Wrong or missing CSS asset version in {path.relative_to(ROOT)}')
     for link in parser.links:
@@ -230,6 +235,24 @@ for tool in tools:
     if related_html.count('class="tool-card"') != len(tool.get('relatedTools', [])):
         fail(f'Related tool cards do not match registry in {tool["slug"]}')
 
+batch4_modules = {
+    **{slug: 'converter-family.js' for slug in ('length-converter', 'weight-converter', 'temperature-converter', 'area-converter', 'volume-converter', 'speed-converter', 'pressure-converter', 'energy-converter', 'data-size-converter', 'time-unit-converter')},
+    **{slug: 'math-family.js' for slug in ('percentage-adjustment', 'percent-of-number', 'percentage-difference', 'average-calculator', 'ratio-proportion-calculator', 'gcd-lcm-calculator', 'simple-interest-calculator', 'compound-interest-calculator')},
+    **{slug: 'text-family.js' for slug in ('character-counter', 'case-converter', 'arabic-diacritics-remover', 'duplicate-spaces-remover', 'reverse-text', 'alphabetize-list', 'text-compare')},
+    **{slug: 'date-family.js' for slug in ('date-offset-calculator', 'business-days-calculator', 'iso-week-calculator', 'date-countdown', 'hijri-days-difference')},
+}
+for slug, module in batch4_modules.items():
+    module_path = ROOT / 'assets/js/tools' / module
+    if not module_path.exists() or not module_path.stat().st_size:
+        fail(f'Missing batch-4 module {module}')
+        continue
+    page_path = ROOT / 'tools' / f'{slug}.html'
+    if page_path.exists() and f'/assets/js/tools/{module}?v=20261114-5' not in page_path.read_text(encoding='utf-8'):
+        fail(f'Batch-4 module is not linked by {slug}')
+    module_source = module_path.read_text(encoding='utf-8')
+    if re.search(r'https?://|\bsendBeacon\s*\(|\bXMLHttpRequest\b|\bWebSocket\b', module_source):
+        fail(f'Batch-4 module {module} contains an external/network API path')
+
 og_files = sorted((ROOT / 'assets/images/og').rglob('*.png'))
 expected_og_count = 1 + len(tools) + len(expected_categories)
 if len(og_files) != expected_og_count:
@@ -275,6 +298,8 @@ except Exception as exc:
 catalog = (ROOT / 'tools.html').read_text(encoding='utf-8') if (ROOT / 'tools.html').exists() else ''
 if '/categories/documents' not in catalog:
     fail('Documents category is not linked from the tools catalog')
+if '/categories/converters' not in catalog:
+    fail('Converters category is not linked from the tools catalog')
 if 'og:locale content="ar_AR"' in ''.join(path.read_text(encoding='utf-8') for path in html_files if path.exists()):
     fail('An outdated ar_AR Open Graph locale remains')
 

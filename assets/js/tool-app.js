@@ -37,7 +37,7 @@
   function jsonMarkup() { return `<div class="tool-form"><div class="form-field"><label for="json-input">JSON الأصلي</label><textarea id="json-input" placeholder='{"name":"محتوى"}'></textarea></div><div class="action-row">${button('تنسيق JSON', 'button-primary')} ${button('تصغير', 'button-quiet')} ${button('نسخ النتيجة', 'button-quiet')}</div><div class="form-field"><label for="json-output">النتيجة</label><textarea id="json-output" readonly></textarea></div></div>`; }
 
   function render() {
-    const separateModule = window.MuhtawaaSaudiTools?.[tool];
+    const separateModule = window.MuhtawaaSaudiTools?.[tool] || window.MuhtawaaBatch4Tools?.[tool];
     if (separateModule?.mount) {
       let settings = {};
       try { settings = JSON.parse(root.dataset.toolSettings || '{}'); } catch { settings = {}; }

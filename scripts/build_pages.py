@@ -11,7 +11,7 @@ from generate_og_images import generate_og_images
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261114-4'
+ASSET_VERSION = '20261114-5'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -143,7 +143,7 @@ def card(tool):
 
 
 def category_name(slug):
-    return {'calculators': 'الحاسبات', 'dates': 'التاريخ والوقت', 'text': 'النصوص', 'images': 'الصور', 'documents': 'المستندات'}.get(slug, 'أدوات')
+    return {'calculators': 'الحاسبات', 'dates': 'التاريخ والوقت', 'text': 'النصوص', 'images': 'الصور', 'documents': 'المستندات', 'converters': 'محولات الوحدات'}.get(slug, 'أدوات')
 
 
 def faq_schema(tool):
@@ -166,6 +166,10 @@ def tool_app_config(tool):
         'images-to-pdf': 'pdf-tools.js',
         'pdf-organizer': 'pdf-tools.js',
     }
+    modules.update({slug: 'converter-family.js' for slug in ('length-converter', 'weight-converter', 'temperature-converter', 'area-converter', 'volume-converter', 'speed-converter', 'pressure-converter', 'energy-converter', 'data-size-converter', 'time-unit-converter')})
+    modules.update({slug: 'math-family.js' for slug in ('percentage-adjustment', 'percent-of-number', 'percentage-difference', 'average-calculator', 'ratio-proportion-calculator', 'gcd-lcm-calculator', 'simple-interest-calculator', 'compound-interest-calculator')})
+    modules.update({slug: 'text-family.js' for slug in ('character-counter', 'case-converter', 'arabic-diacritics-remover', 'duplicate-spaces-remover', 'reverse-text', 'alphabetize-list', 'text-compare')})
+    modules.update({slug: 'date-family.js' for slug in ('date-offset-calculator', 'business-days-calculator', 'iso-week-calculator', 'date-countdown', 'hijri-days-difference')})
     module_file = modules.get(tool['slug'])
     module_markup = f'<script src="/assets/js/tools/{module_file}?v={ASSET_VERSION}" defer></script>' if module_file else ''
     return settings_attr, module_markup
