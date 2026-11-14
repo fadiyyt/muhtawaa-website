@@ -187,7 +187,7 @@ for path in html_files:
     for key in ('og:image:width', 'og:image:height'):
         if not parser.meta.get(key):
             fail(f'Missing {key} in {path.relative_to(ROOT)}')
-    expected_asset_version = '20261114-5'
+    expected_asset_version = '20261114-6'
     if f'site.css?v={expected_asset_version}' not in source:
         fail(f'Wrong or missing CSS asset version in {path.relative_to(ROOT)}')
     for link in parser.links:
@@ -247,7 +247,7 @@ for slug, module in batch4_modules.items():
         fail(f'Missing batch-4 module {module}')
         continue
     page_path = ROOT / 'tools' / f'{slug}.html'
-    if page_path.exists() and f'/assets/js/tools/{module}?v=20261114-5' not in page_path.read_text(encoding='utf-8'):
+    if page_path.exists() and f'/assets/js/tools/{module}?v=20261114-6' not in page_path.read_text(encoding='utf-8'):
         fail(f'Batch-4 module is not linked by {slug}')
     module_source = module_path.read_text(encoding='utf-8')
     if re.search(r'https?://|\bsendBeacon\s*\(|\bXMLHttpRequest\b|\bWebSocket\b', module_source):

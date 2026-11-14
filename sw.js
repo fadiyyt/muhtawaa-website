@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muhtawaa-tools-v10';
+const CACHE_NAME = 'muhtawaa-tools-v11';
 const CORE = [
   '/', '/tools.html', '/categories/documents.html', '/categories/converters.html',
   '/tools/age-calculator', '/tools/hijri-converter', '/tools/hijri-calendar',
