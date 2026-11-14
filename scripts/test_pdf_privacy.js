@@ -29,7 +29,7 @@ for (const slug of slugs) {
   assert.ok(tool, `Missing registry entry ${slug}`);
   assert.match(tool.intro, /Web Worker/);
   const page = read(`tools/${slug}.html`);
-  assert.match(page, /\/assets\/js\/tools\/pdf-tools\.js\?v=20261114-4/);
+  assert.match(page, /\/assets\/js\/tools\/pdf-tools\.js\?v=\d{8}-\d+/);
   assert.doesNotMatch(page, /unpkg\.com|jsdelivr\.net|cdnjs\.com/i);
 }
 

@@ -41,6 +41,10 @@
       "title": "المستندات"
     },
     {
+      "path": "/categories/converters",
+      "title": "محولات الوحدات"
+    },
+    {
       "path": "/tools/age-calculator",
       "title": "حاسبة العمر"
     },
@@ -139,6 +143,126 @@
     {
       "path": "/tools/pdf-organizer",
       "title": "ترتيب وتدوير صفحات PDF"
+    },
+    {
+      "path": "/tools/length-converter",
+      "title": "محول الطول"
+    },
+    {
+      "path": "/tools/weight-converter",
+      "title": "محول الوزن والكتلة"
+    },
+    {
+      "path": "/tools/temperature-converter",
+      "title": "محول الحرارة"
+    },
+    {
+      "path": "/tools/area-converter",
+      "title": "محول المساحة"
+    },
+    {
+      "path": "/tools/volume-converter",
+      "title": "محول الحجم والسعة"
+    },
+    {
+      "path": "/tools/speed-converter",
+      "title": "محول السرعة"
+    },
+    {
+      "path": "/tools/pressure-converter",
+      "title": "محول الضغط"
+    },
+    {
+      "path": "/tools/energy-converter",
+      "title": "محول الطاقة"
+    },
+    {
+      "path": "/tools/data-size-converter",
+      "title": "محول وحدات البيانات"
+    },
+    {
+      "path": "/tools/time-unit-converter",
+      "title": "محول وحدات الزمن"
+    },
+    {
+      "path": "/tools/percentage-adjustment",
+      "title": "حاسبة زيادة أو نقصان النسبة"
+    },
+    {
+      "path": "/tools/percent-of-number",
+      "title": "حاسبة نسبة من رقم"
+    },
+    {
+      "path": "/tools/percentage-difference",
+      "title": "حاسبة الفرق بين رقمين بالنسبة"
+    },
+    {
+      "path": "/tools/average-calculator",
+      "title": "حاسبة المتوسط الحسابي"
+    },
+    {
+      "path": "/tools/ratio-proportion-calculator",
+      "title": "حاسبة النسبة والتناسب"
+    },
+    {
+      "path": "/tools/gcd-lcm-calculator",
+      "title": "حاسبة القاسم المشترك والمضاعف المشترك"
+    },
+    {
+      "path": "/tools/simple-interest-calculator",
+      "title": "حاسبة الفائدة البسيطة"
+    },
+    {
+      "path": "/tools/compound-interest-calculator",
+      "title": "حاسبة الفائدة المركبة"
+    },
+    {
+      "path": "/tools/character-counter",
+      "title": "عداد الأحرف والرموز المرئية"
+    },
+    {
+      "path": "/tools/case-converter",
+      "title": "محول حالة الأحرف"
+    },
+    {
+      "path": "/tools/arabic-diacritics-remover",
+      "title": "إزالة التشكيل العربي"
+    },
+    {
+      "path": "/tools/duplicate-spaces-remover",
+      "title": "إزالة المسافات المكررة"
+    },
+    {
+      "path": "/tools/reverse-text",
+      "title": "عكس النص"
+    },
+    {
+      "path": "/tools/alphabetize-list",
+      "title": "ترتيب قائمة أبجديًا"
+    },
+    {
+      "path": "/tools/text-compare",
+      "title": "مقارنة نصين"
+    },
+    {
+      "path": "/tools/date-offset-calculator",
+      "title": "إضافة أو طرح أيام من تاريخ"
+    },
+    {
+      "path": "/tools/business-days-calculator",
+      "title": "حاسبة أيام العمل"
+    },
+    {
+      "path": "/tools/iso-week-calculator",
+      "title": "حاسبة رقم الأسبوع في السنة"
+    },
+    {
+      "path": "/tools/date-countdown",
+      "title": "العد التنازلي لتاريخ"
+    },
+    {
+      "path": "/tools/hijri-days-difference",
+      "title": "حاسبة الأيام بين تاريخين هجريين"
     }
   ]
 }
