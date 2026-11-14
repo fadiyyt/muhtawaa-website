@@ -12,17 +12,38 @@
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
+  function serviceYearsFromParts(years, months, days, settings = {}) {
+    const y = Number(years), m = Number(months), d = Number(days);
+    const monthsPerYear = Number(settings?.serviceDuration?.monthsPerYear || 12);
+    const daysPerMonth = Number(settings?.serviceDuration?.daysPerMonth || 30);
+    if (![y, m, d, monthsPerYear, daysPerMonth].every(Number.isFinite)
+      || ![y, m, d].every(Number.isInteger) || y < 0 || m < 0 || m >= monthsPerYear
+      || d < 0 || d > daysPerMonth || monthsPerYear <= 0 || daysPerMonth <= 0) return null;
+    return y + (m * daysPerMonth + d) / (monthsPerYear * daysPerMonth);
+  }
+
+  function resignationRatio(serviceYears, settings) {
+    const bands = settings?.resignation || {};
+    const minimum = Number(bands.minimumEntitlementYears || 2);
+    const five = Number(settings?.base?.firstBandYears || 5);
+    const ten = Number(bands.fullAtYears || 10);
+    if (serviceYears < minimum) return 0;
+    if (serviceYears <= five) return Number(bands.twoToFive.numerator) / Number(bands.twoToFive.denominator);
+    if (serviceYears < ten) return Number(bands.overFiveToTen.numerator) / Number(bands.overFiveToTen.denominator);
+    return Number(bands.tenOrMore.numerator) / Number(bands.tenOrMore.denominator);
+  }
+
   function calculateEndOfService(input, settings) {
     const wage = Number(input?.monthlyFinalActualWageSAR);
-    const serviceYears = Number(input?.continuousServiceYears);
-    const contractType = input?.contractType;
+    const serviceYears = input?.continuousServiceYears !== undefined
+      ? Number(input.continuousServiceYears)
+      : serviceYearsFromParts(input?.serviceYears, input?.serviceMonths, input?.serviceDays, settings);
     const endType = input?.endType;
     if (!Number.isFinite(wage) || wage <= 0 || !Number.isFinite(serviceYears) || serviceYears <= 0) {
-      return { status: 'invalid', message: 'أدخل الأجر الشهري الأخير ومدة الخدمة بقيم موجبة وصحيحة.' };
+      return { status: 'invalid', message: 'أدخل الأجر الشهري الأخير ومدة خدمة صحيحة وموجبة.' };
     }
-    if (!['fixed', 'unlimited'].includes(contractType)) return { status: 'invalid', message: 'اختر نوع العقد.' };
-    if (!input.inScopeConfirmed) return { status: 'blocked', message: 'لا تحسب هذه الأداة إلا للعامل المشمول بنظام العمل العام وخارج فترة التجربة وحالات المادة 80 والاستثناءات الخاصة.' };
-    if (input.article87Exception) return { status: 'blocked', message: 'حالات المادة 87 لها معاملة خاصة ولا تحسبها هذه النسخة.' };
+    if (!['ordinary', 'resignation'].includes(endType)) return { status: 'invalid', message: 'اختر سبب انتهاء الخدمة.' };
+    if (!input.inScopeConfirmed) return { status: 'blocked', message: 'أكّد أن الحالة ضمن نطاق الحاسبة كما هو موضح في التنبيه.' };
 
     const baseSettings = settings?.base || {};
     const firstBandYears = Number(baseSettings.firstBandYears);
@@ -32,41 +53,23 @@
       return { status: 'blocked', message: 'إعدادات طريقة الحساب غير مكتملة.' };
     }
 
-    let multiplier;
-    if (serviceYears <= firstBandYears) {
-      multiplier = Number(firstRate.numerator) / Number(firstRate.denominator) * serviceYears;
-    } else {
-      multiplier = Number(firstRate.numerator) / Number(firstRate.denominator) * firstBandYears
-        + Number(laterRate.numerator) / Number(laterRate.denominator) * (serviceYears - firstBandYears);
-    }
+    const firstPerYear = Number(firstRate.numerator) / Number(firstRate.denominator);
+    const laterPerYear = Number(laterRate.numerator) / Number(laterRate.denominator);
+    const multiplier = serviceYears <= firstBandYears
+      ? firstPerYear * serviceYears
+      : firstPerYear * firstBandYears + laterPerYear * (serviceYears - firstBandYears);
     const baseAmount = wage * multiplier;
-    let entitlementRatio = 1;
-
-    if (endType === 'resignation') {
-      if (!input.resignationClassificationConfirmed) {
-        return { status: 'blocked', message: 'أكد أن الإنهاء مصنف نظاميًا استقالةً تنطبق عليها المادة 85؛ لا تستنتج الأداة هذا التصنيف.' };
-      }
-      if (serviceYears < 2) {
-        return { status: 'blocked', message: 'لا تعرض هذه الأداة نتيجة للاستقالة قبل سنتين؛ النص الرسمي الذي راجعناه لا يحسم مقدارها صراحة.' };
-      }
-      const bands = settings?.resignation || {};
-      if (serviceYears <= firstBandYears) entitlementRatio = Number(bands.twoToFive?.numerator) / Number(bands.twoToFive?.denominator);
-      else if (serviceYears < Number(bands.fullAtYears)) entitlementRatio = Number(bands.overFiveToTen?.numerator) / Number(bands.overFiveToTen?.denominator);
-      else entitlementRatio = Number(bands.tenOrMore?.numerator) / Number(bands.tenOrMore?.denominator);
-    } else if (endType !== 'ordinary') {
-      return { status: 'invalid', message: 'اختر نوع انتهاء الخدمة.' };
-    }
-
-    if (!Number.isFinite(entitlementRatio) || entitlementRatio <= 0 || entitlementRatio > 1) {
+    const ratio = endType === 'resignation' ? resignationRatio(serviceYears, settings) : 1;
+    if (!Number.isFinite(ratio) || ratio < 0 || ratio > 1) {
       return { status: 'blocked', message: 'إعداد نسبة الاستحقاق غير صالح.' };
     }
     return {
       status: 'calculated',
       baseAmountSAR: roundSAR(baseAmount),
-      entitlementRatio,
-      amountSAR: roundSAR(baseAmount * entitlementRatio),
-      formula: endType === 'resignation' ? 'مكافأة المادة 84 × نسبة المادة 85' : 'المكافأة الأساسية وفق المادة 84',
-      contractType
+      entitlementRatio: ratio,
+      amountSAR: roundSAR(baseAmount * ratio),
+      noResignationEntitlement: endType === 'resignation' && ratio === 0,
+      formula: endType === 'resignation' ? 'مكافأة المادة 84 × نسبة المادة 85' : 'المكافأة الأساسية وفق المادة 84'
     };
   }
 
@@ -78,42 +81,36 @@
     rootElement.innerHTML = `
       <form class="tool-form" id="eos-form" novalidate>
         <div class="form-grid">
-          <div class="form-field"><label for="eos-contract">نوع العقد</label><select id="eos-contract"><option value="fixed">محدد المدة</option><option value="unlimited">غير محدد المدة</option></select></div>
-          <div class="form-field"><label for="eos-wage">الأجر الشهري الأخير الفعلي (ريال)</label><input id="eos-wage" type="number" min="0.01" step="0.01" required inputmode="decimal"></div>
-          <div class="form-field"><label for="eos-years">مدة الخدمة المستمرة بالسنوات</label><input id="eos-years" type="number" min="0.01" step="0.01" required inputmode="decimal"><small>أدخل المدة المحسوبة والمعتمدة؛ لا تستنتجها الأداة من التواريخ.</small></div>
-          <div class="form-field"><label for="eos-end-type">سبب الانتهاء</label><select id="eos-end-type"><option value="ordinary">انتهاء عقد أو إنهاء عادي غير مشمول بالمادة 80</option><option value="resignation">استقالة مصنفة نظاميًا وفق المادة 85</option></select></div>
+          <div class="form-field"><label for="eos-wage">الأجر الشهري الأخير الفعلي (ريال)</label><input id="eos-wage" type="number" min="0.01" step="0.01" required inputmode="decimal"><small>الأجر الفعلي الأخير هو الأجر المعتمد عند انتهاء العلاقة، وليس بالضرورة الأجر الأساسي وحده؛ أدخل القيمة الواردة في مستندات جهة العمل.</small></div>
+          <div class="form-field"><label for="eos-end-type">سبب الانتهاء</label><select id="eos-end-type"><option value="ordinary">انتهاء خدمة غير مصنف استقالةً</option><option value="resignation">استقالة وفق المادة 85</option></select></div>
         </div>
-        <label class="check-row"><input id="eos-scope" type="checkbox"> أؤكد أن العامل مشمول بالنظام العام، وأن الحالة ليست فترة تجربة أو فصلًا مستوفيًا للمادة 80، ولا تنطبق استثناءات خاصة.</label>
-        <label class="check-row"><input id="eos-article87" type="checkbox"> تنطبق حالة استثنائية من المادة 87؛ لا تعرض نتيجة تلقائية لهذه الحالة.</label>
-        <div class="form-field" id="eos-resignation-confirm-wrap" hidden><label class="check-row"><input id="eos-resignation-confirm" type="checkbox"> أؤكد أن سبب الانتهاء مصنف نظاميًا استقالةً تنطبق عليها المادة 85.</label></div>
+        <fieldset class="form-field"><legend>مدة الخدمة المستمرة المعتمدة</legend><div class="form-grid service-duration-grid"><div class="form-field"><label for="eos-years">سنوات</label><input id="eos-years" type="number" min="0" max="100" step="1" value="0" required inputmode="numeric"></div><div class="form-field"><label for="eos-months">أشهر</label><input id="eos-months" type="number" min="0" max="11" step="1" value="0" required inputmode="numeric"></div><div class="form-field"><label for="eos-days">أيام</label><input id="eos-days" type="number" min="0" max="30" step="1" value="0" required inputmode="numeric"></div></div><small>لأغراض التقدير فقط، يحوّل الجزء إلى سنة على أساس 12 شهرًا والسنة 360 يومًا. أدخل المدة التي اعتمدتها جهة العمل.</small></fieldset>
+        <label class="check-row"><input id="eos-scope" type="checkbox"> أؤكد أن الحالة ضمن نظام العمل العام وليست فترة تجربة أو حالة مستثناة بالمادتين 80 أو 87، وأن وصف الاستقالة صحيح عند اختياره. الحاسبة تقديرية وليست تسوية نهائية.</label>
         <div class="action-row"><button class="button-primary" type="submit">احسب المكافأة</button><button class="button-quiet" type="reset">مسح</button></div>
         <div class="result-box" id="eos-result" aria-live="polite"></div>
       </form>
-      <p class="tool-note">لا تحسب هذه النسخة استقالات أقل من سنتين أو الحالات الخاصة بالمادة 87 أو تاريخ الخدمة اليومي. أدخل الأجر الفعلي الأخير ومدة الخدمة كما اعتمدتهما جهة العمل.</p>`;
+      <p class="tool-note">لا تحسب هذه النسخة التعويضات الأخرى أو الحالات المستثناة. راجع HRSD أو مختصًا عند وجود نزاع أو حالة خاصة.</p>`;
     const form = rootElement.querySelector('#eos-form');
-    const endType = rootElement.querySelector('#eos-end-type');
-    const resignationWrap = rootElement.querySelector('#eos-resignation-confirm-wrap');
     const result = rootElement.querySelector('#eos-result');
-    endType.addEventListener('change', () => { resignationWrap.hidden = endType.value !== 'resignation'; });
-    form.addEventListener('reset', () => { setTimeout(() => { resignationWrap.hidden = true; result.classList.remove('visible'); result.textContent = ''; }, 0); });
+    const money = amount => new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    form.addEventListener('reset', () => { setTimeout(() => { result.classList.remove('visible'); result.textContent = ''; }, 0); });
     form.addEventListener('submit', event => {
       event.preventDefault();
       const calculation = calculateEndOfService({
         monthlyFinalActualWageSAR: rootElement.querySelector('#eos-wage').value,
-        continuousServiceYears: rootElement.querySelector('#eos-years').value,
-        contractType: rootElement.querySelector('#eos-contract').value,
-        endType: endType.value,
-        inScopeConfirmed: rootElement.querySelector('#eos-scope').checked,
-        article87Exception: rootElement.querySelector('#eos-article87').checked,
-        resignationClassificationConfirmed: rootElement.querySelector('#eos-resignation-confirm').checked
+        serviceYears: rootElement.querySelector('#eos-years').value,
+        serviceMonths: rootElement.querySelector('#eos-months').value,
+        serviceDays: rootElement.querySelector('#eos-days').value,
+        endType: rootElement.querySelector('#eos-end-type').value,
+        inScopeConfirmed: rootElement.querySelector('#eos-scope').checked
       }, settings);
       result.classList.add('visible');
       result.classList.toggle('error-message', calculation.status !== 'calculated');
-      result.innerHTML = calculation.status === 'calculated'
-        ? `<strong>المكافأة التقديرية: ${new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(calculation.amountSAR)} ريال</strong><p>الأساس قبل نسبة الاستقالة: ${new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(calculation.baseAmountSAR)} ريال.</p>`
-        : escapeHTML(calculation.message);
+      if (calculation.status !== 'calculated') result.innerHTML = escapeHTML(calculation.message);
+      else if (calculation.noResignationEntitlement) result.innerHTML = '<strong>لا استحقاق لمكافأة نهاية الخدمة عند الاستقالة قبل إتمام سنتين وفق حد المادة 85.</strong><p>التقدير الأساسي قبل نسبة الاستقالة: ' + money(calculation.baseAmountSAR) + ' ريال، والناتج المستحق: 0 ريال.</p>';
+      else result.innerHTML = `<strong>المكافأة التقديرية: ${money(calculation.amountSAR)} ريال</strong><p>الأساس قبل نسبة الاستقالة: ${money(calculation.baseAmountSAR)} ريال.</p>`;
     });
   }
 
-  return { calculateEndOfService, mount, roundSAR };
+  return { calculateEndOfService, mount, resignationRatio, roundSAR, serviceYearsFromParts };
 });

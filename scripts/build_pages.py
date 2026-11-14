@@ -11,7 +11,7 @@ from generate_og_images import generate_og_images
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'tools.json'
-ASSET_VERSION = '20261112-2'
+ASSET_VERSION = '20261114-3'
 SITE_URL = 'https://muhtawaa.com'
 
 
@@ -157,6 +157,10 @@ def tool_app_config(tool):
     settings_attr = f' data-tool-settings="{escape(encoded, quote=True)}"' if settings else ''
     modules = {
         'end-of-service-calculator': 'end-of-service-calculator.js',
+        'age-calculator': 'hijri-tools.js',
+        'hijri-converter': 'hijri-tools.js',
+        'hijri-calendar': 'hijri-tools.js',
+        'zakat-calculator': 'zakat-calculator.js',
     }
     module_file = modules.get(tool['slug'])
     module_markup = f'<script src="/assets/js/tools/{module_file}?v={ASSET_VERSION}" defer></script>' if module_file else ''
@@ -175,7 +179,9 @@ def guide_markup(tool):
     method_title = escape(tool.get('methodTitle', 'كيف تعمل الأداة؟'))
     formula = tool.get('formula', '').strip()
     formula_markup = f'<div class="formula-card"><strong>المعادلة أو طريقة المعالجة:</strong><p>{escape(formula)}</p></div>' if formula else ''
-    return f'''<h2>{method_title}</h2><p>{escape(tool.get('howWeCalculate', ''))}</p>{formula_markup}<h2>طريقة الاستخدام</h2><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
+    law_quote = tool.get('lawQuote', '').strip()
+    quote_markup = f'<blockquote class="law-quote">{escape(law_quote)}<cite>المادة 85 — وزارة الموارد البشرية والتنمية الاجتماعية</cite></blockquote>' if law_quote else ''
+    return f'''<h2>{method_title}</h2><p>{escape(tool.get('howWeCalculate', ''))}</p>{quote_markup}{formula_markup}<h2>طريقة الاستخدام</h2><ol class="guide-list">{steps}</ol><h2>أمثلة عملية</h2><div class="example-grid">{examples}</div><h2>ملاحظات مهمة</h2><ul class="guide-list">{notes}</ul>'''
 
 
 def tool_page(tool, tools):

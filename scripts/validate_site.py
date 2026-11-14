@@ -65,11 +65,11 @@ if len(slugs) != len(set(slugs)):
     fail('Duplicate tool slugs found')
 if len(category_slugs) != len(set(category_slugs)):
     fail('Duplicate category slugs found')
-if len(tools) != 19:
-    fail(f'Expected 19 tools, found {len(tools)}')
+if len(tools) != 21:
+    fail(f'Expected 21 tools, found {len(tools)}')
 
 required = ('slug', 'name', 'description', 'seoTitle', 'seoDescription', 'category', 'intro', 'summary', 'searchQuestion', 'usageHint', 'methodTitle', 'howWeCalculate', 'howTo', 'examples', 'notes', 'faq', 'relatedTools')
-priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator'}
+priority_slugs = {'age-calculator', 'date-difference', 'hijri-converter', 'hijri-calendar', 'zakat-calculator', 'word-counter', 'percentage-calculator', 'vat-calculator', 'end-of-service-calculator'}
 for tool in tools:
     slug = tool.get('slug', '(unknown)')
     for key in required:
@@ -105,6 +105,18 @@ for tool in tools:
     page = ROOT / 'tools' / f'{slug}.html'
     if not page.exists():
         fail(f'Missing generated page: tools/{slug}.html')
+
+try:
+    table = json.loads((ROOT / 'data/ummalqura-1356-1500.json').read_text(encoding='utf-8'))
+    if (table.get('gregorianStart'), table.get('gregorianEnd'), table.get('hijriStart'), table.get('hijriEnd')) != ('1937-03-14', '2077-11-16', '1356-01-01', '1500-12-30'):
+        fail('Umm al-Qura table boundaries do not match the approved range')
+    if len(table.get('hijriDateByGregorianDay', [])) != table.get('dayCount'):
+        fail('Umm al-Qura table dayCount does not match its data')
+    samples = json.loads((ROOT / 'data/ummalqura-official-samples.json').read_text(encoding='utf-8'))
+    if len(samples.get('samples', [])) != 30 or not all(item.get('match') for item in samples.get('samples', [])):
+        fail('Umm al-Qura official sample verification is incomplete')
+except Exception as exc:
+    fail(f'Umm al-Qura table or verification samples are invalid: {exc}')
 
 
 def png_dimensions(path):
@@ -154,7 +166,7 @@ for path in html_files:
     for key in ('og:image:width', 'og:image:height'):
         if not parser.meta.get(key):
             fail(f'Missing {key} in {path.relative_to(ROOT)}')
-    expected_asset_version = '20261112-2'
+    expected_asset_version = '20261114-3'
     if f'site.css?v={expected_asset_version}' not in source:
         fail(f'Wrong or missing CSS asset version in {path.relative_to(ROOT)}')
     for link in parser.links:

@@ -1,35 +1,54 @@
 #!/usr/bin/env node
 'use strict';
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const settings = require('../data/saudi-tool-settings.json')['end-of-service-calculator'];
-const { calculateEndOfService } = require('../assets/js/tools/end-of-service-calculator.js');
+const { calculateEndOfService, resignationRatio, serviceYearsFromParts } = require('../assets/js/tools/end-of-service-calculator.js');
 
-const base = { contractType: 'fixed', endType: 'ordinary', inScopeConfirmed: true };
-const cases = [
-  [{ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 2 }, 10000],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 5 }, 30000],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 10 }, 90000],
-  [{ ...base, monthlyFinalActualWageSAR: 8000, continuousServiceYears: 7.5 }, 40000],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 2.5 }, 15000],
-  [{ ...base, monthlyFinalActualWageSAR: 10001.25, continuousServiceYears: 1.5 }, 7500.94],
-  [{ ...base, monthlyFinalActualWageSAR: 9000, continuousServiceYears: 4 }, 18000],
-  [{ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 2, endType: 'resignation', resignationClassificationConfirmed: true }, 3333.33],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 5, endType: 'resignation', resignationClassificationConfirmed: true }, 10000],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 5.5, endType: 'resignation', resignationClassificationConfirmed: true }, 24000],
-  [{ ...base, monthlyFinalActualWageSAR: 12000, continuousServiceYears: 10, endType: 'resignation', resignationClassificationConfirmed: true }, 90000],
-  [{ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 2, endType: 'resignation', resignationClassificationConfirmed: false }, null],
-  [{ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 1.5, endType: 'resignation', resignationClassificationConfirmed: true }, null],
-  [{ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 4, article87Exception: true }, null],
-  [{ ...base, monthlyFinalActualWageSAR: -1, continuousServiceYears: 4 }, null]
+const base = { endType: 'resignation', inScopeConfirmed: true, monthlyFinalActualWageSAR: 12000 };
+const boundaryCases = [
+  [1.99, 0],
+  [2.0, 4000],
+  [5.0, 10000],
+  [5.01, 20080],
+  [9.99, 59920],
+  [10.0, 90000]
 ];
-for (const [input, expected] of cases) {
-  const result = calculateEndOfService(input, settings);
-  if (expected === null) assert.notEqual(result.status, 'calculated', JSON.stringify(input));
-  else {
-    assert.equal(result.status, 'calculated', JSON.stringify(input));
-    assert.equal(result.amountSAR, expected, JSON.stringify(input));
-  }
+for (const [years, expected] of boundaryCases) {
+  const result = calculateEndOfService({ ...base, continuousServiceYears: years }, settings);
+  assert.equal(result.status, 'calculated', `${years} years should calculate`);
+  assert.equal(result.amountSAR, expected, `${years} years boundary amount`);
 }
-assert.equal(calculateEndOfService({ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 4, inScopeConfirmed: false }, settings).status, 'blocked');
-assert.equal(calculateEndOfService({ ...base, monthlyFinalActualWageSAR: 10000, continuousServiceYears: 4, endType: 'invalid' }, settings).status, 'invalid');
-console.log(`End-of-service tests passed: ${cases.length} formula/boundary cases and 2 input/scope checks.`);
+assert.equal(resignationRatio(1.99, settings), 0);
+assert.equal(resignationRatio(2, settings), 1 / 3);
+assert.equal(resignationRatio(5, settings), 1 / 3);
+assert.equal(resignationRatio(5.01, settings), 2 / 3);
+assert.equal(resignationRatio(9.99, settings), 2 / 3);
+assert.equal(resignationRatio(10, settings), 1);
+
+const partsCases = [
+  [{ serviceYears: 2, serviceMonths: 0, serviceDays: 0 }, 2],
+  [{ serviceYears: 5, serviceMonths: 1, serviceDays: 0 }, 5 + 1 / 12],
+  [{ serviceYears: 1, serviceMonths: 11, serviceDays: 30 }, 2],
+  [{ serviceYears: 0, serviceMonths: 0, serviceDays: 31 }, null],
+  [{ serviceYears: 0, serviceMonths: 12, serviceDays: 0 }, null]
+];
+for (const [parts, expected] of partsCases) {
+  assert.equal(serviceYearsFromParts(parts.serviceYears, parts.serviceMonths, parts.serviceDays, settings), expected);
+}
+const partResult = calculateEndOfService({ ...base, serviceYears: 5, serviceMonths: 1, serviceDays: 0 }, settings);
+assert.equal(partResult.status, 'calculated');
+assert.equal(partResult.amountSAR, 20666.67);
+
+const ordinary = calculateEndOfService({ ...base, endType: 'ordinary', serviceYears: 10, serviceMonths: 0, serviceDays: 0 }, settings);
+assert.equal(ordinary.status, 'calculated');
+assert.equal(ordinary.amountSAR, 90000);
+const noConfirmation = calculateEndOfService({ ...base, inScopeConfirmed: false, continuousServiceYears: 4 }, settings);
+assert.equal(noConfirmation.status, 'blocked');
+assert.equal(calculateEndOfService({ ...base, endType: 'invalid', continuousServiceYears: 4 }, settings).status, 'invalid');
+assert.equal(calculateEndOfService({ ...base, monthlyFinalActualWageSAR: -1, continuousServiceYears: 4 }, settings).status, 'invalid');
+
+const source = fs.readFileSync(require.resolve('../assets/js/tools/end-of-service-calculator.js'), 'utf8');
+assert.equal((source.match(/type="checkbox"/g) || []).length, 1, 'Only one confirmation checkbox is allowed');
+assert.doesNotMatch(source, /contractType/, 'Unused contract-type choice must be absent');
+console.log('End-of-service tests passed: six Article 85 boundaries, compound duration, Article 84, one confirmation, and invalid inputs.');
